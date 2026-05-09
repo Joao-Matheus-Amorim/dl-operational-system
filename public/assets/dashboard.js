@@ -36,8 +36,11 @@ async function init() {
   }
 
   await loadClient('all');
+  await loadTasks();
+  await loadTaskRuns();
   await loadNotifications();
   setInterval(loadNotifications, 5000);
+  setInterval(loadTaskRuns, 7000);
   bindTilt();
   bindParallax();
 }
@@ -97,6 +100,43 @@ async function loadClient(client) {
   setTimeout(bindTilt, 30);
 }
 
+async function loadTasks() {
+  if (!window.automationTasks) return;
+  const tasks = await api('/api/tasks');
+  automationTasks.innerHTML = tasks.map((task) => `
+    <div class="task-card">
+      <div class="task-head"><strong>${escapeHtml(task.name)}</strong><span>${escapeHtml(task.status)}</span></div>
+      <p>${escapeHtml(task.description)}</p>
+      <small>Agenda: ${escapeHtml(task.schedule)}</small>
+      <div class="task-env">${(task.requiresEnv || []).length ? task.requiresEnv.map((env) => `<code>${escapeHtml(env)}</code>`).join('') : '<code>sem credencial</code>'}</div>
+      <button class="action task-run" onclick="runAutomationTask('${task.key}')">Rodar esta rotina</button>
+    </div>
+  `).join('');
+}
+
+async function loadTaskRuns() {
+  if (!window.automationRuns) return;
+  const runs = await api('/api/tasks/runs');
+  automationRuns.innerHTML = runs.length ? runs.map((run) => `
+    <div class="run-card ${run.status}">
+      <div class="task-head"><strong>${escapeHtml(run.taskKey)}</strong><span>${escapeHtml(run.status)} · ${escapeHtml(run.mode)}</span></div>
+      <p>${escapeHtml(run.result?.message || 'Execução registrada.')}</p>
+      <ol>${(run.steps || []).map((step) => `<li><b>${escapeHtml(step.label)}</b><br><small>${new Date(step.at).toLocaleString('pt-BR')}</small></li>`).join('')}</ol>
+    </div>
+  `).join('') : '<p class="muted">Nenhuma rotina executada ainda. Clique em “Rodar ciclo completo”.</p>';
+}
+
+async function runAutomationTask(taskKey = 'full_cycle') {
+  const run = await api('/api/tasks/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ taskKey }),
+  });
+  await loadTaskRuns();
+  await loadNotifications();
+  showToast(`Rotina ${run.taskKey} executada`);
+}
+
 async function loadNotifications() {
   const data = await api('/api/notifications');
   notificationCount.textContent = `${data.length} notificações`;
@@ -126,7 +166,7 @@ async function sendDemoAlert() {
     }),
   });
   await loadNotifications();
-  showToast();
+  showToast('Alerta WhatsApp mock enviado');
 }
 
 async function simulate(action) {
@@ -136,10 +176,11 @@ async function simulate(action) {
     body: JSON.stringify({ client: currentClient, creativeId: 'ad_demo' }),
   });
   await loadNotifications();
-  showToast();
+  showToast('Ação simulada registrada');
 }
 
-function showToast() {
+function showToast(message = 'Notificação registrada') {
+  if (toast.querySelector('strong')) toast.querySelector('strong').textContent = message;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 3200);
 }
