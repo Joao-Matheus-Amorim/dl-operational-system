@@ -50,6 +50,35 @@
 
       <section class="kpis" id="kpis"></section>
 
+      <section class="glass card tilt automation-panel">
+        <div class="automation-header">
+          <div>
+            <span class="eyebrow mini">Robô operacional</span>
+            <h2 class="section-title">Rotinas automáticas do sistema</h2>
+            <p class="muted">Aqui fica claro como o robô trabalha sozinho: puxar Meta Ads, analisar campanhas, preencher planilha, verificar saldo e enviar alerta WhatsApp.</p>
+          </div>
+          <button class="action automation-main" onclick="runAutomationTask('full_cycle')"><strong>▶ Rodar ciclo completo</strong><br><small>Simula a rotina automática inteira</small></button>
+        </div>
+        <div class="task-grid" id="automationTasks"></div>
+      </section>
+
+      <section class="layout">
+        <div class="glass card tilt">
+          <h2 class="section-title">Últimas execuções automáticas <span class="pill">task runner</span></h2>
+          <div id="automationRuns"></div>
+        </div>
+
+        <div class="glass card tilt">
+          <h2 class="section-title">Alertas ativos</h2>
+          <div id="alerts"></div>
+          <div class="actions">
+            <button class="action" onclick="simulate('pause-creative')"><strong>⏸️ Pausar</strong><br><small>Pausar criativo ruim</small></button>
+            <button class="action" onclick="simulate('test-campaign')"><strong>🧪 Testar</strong><br><small>Criar campanha isolada</small></button>
+            <button class="action" onclick="sendDemoAlert()"><strong>📲 Enviar alerta</strong><br><small>WhatsApp mock</small></button>
+          </div>
+        </div>
+      </section>
+
       <section class="layout">
         <div class="glass card tilt">
           <h2 class="section-title">Campanhas por cliente <span class="pill">flow table</span></h2>
@@ -72,42 +101,30 @@
         </div>
 
         <div class="glass card tilt">
-          <h2 class="section-title">Alertas ativos</h2>
-          <div id="alerts"></div>
-          <div class="actions">
-            <button class="action" onclick="simulate('pause-creative')"><strong>⏸️ Pausar</strong><br><small>Pausar criativo ruim</small></button>
-            <button class="action" onclick="simulate('test-campaign')"><strong>🧪 Testar</strong><br><small>Criar campanha isolada</small></button>
-            <button class="action" onclick="sendDemoAlert()"><strong>📲 Enviar alerta</strong><br><small>WhatsApp mock</small></button>
-          </div>
-        </div>
-      </section>
-
-      <section class="layout">
-        <div class="glass card tilt">
-          <h2 class="section-title">Criativos: performance e decisão</h2>
-          <div class="table-wrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Criativo</th>
-                  <th>Campanha</th>
-                  <th>Gasto</th>
-                  <th>Leads</th>
-                  <th>CPL</th>
-                  <th>CTR</th>
-                  <th>Análise</th>
-                  <th>Ação sugerida</th>
-                </tr>
-              </thead>
-              <tbody id="creativeRows"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="glass card tilt">
           <h2 class="section-title">Distribuição de gasto</h2>
           <div class="bars" id="bars"></div>
           <p class="muted">Camadas fluidas para perceber rapidamente campanhas consumindo verba demais com pouco retorno.</p>
+        </div>
+      </section>
+
+      <section class="glass card tilt">
+        <h2 class="section-title">Criativos: performance e decisão</h2>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Criativo</th>
+                <th>Campanha</th>
+                <th>Gasto</th>
+                <th>Leads</th>
+                <th>CPL</th>
+                <th>CTR</th>
+                <th>Análise</th>
+                <th>Ação sugerida</th>
+              </tr>
+            </thead>
+            <tbody id="creativeRows"></tbody>
+          </table>
         </div>
       </section>
 
