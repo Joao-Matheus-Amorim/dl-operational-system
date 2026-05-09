@@ -52,13 +52,13 @@ async function init() {
   await loadNotifications();
   setInterval(loadNotifications, 5000);
   setInterval(loadTaskRuns, 7000);
-  bindTilt();
-  bindParallax();
 }
 
 function renderPageNav() {
   const html = pages.map((page) => `
-    <button class="nav-page ${page.id === currentPage ? 'active' : ''}" data-page="${page.id}">${page.icon} ${page.label}</button>
+    <button class="nav-page ${page.id === currentPage ? 'active' : ''}" data-page="${page.id}">
+      <span class="nav-icon">${page.icon}</span><span class="nav-label">${page.label}</span>
+    </button>
   `).join('');
 
   if (pageNav) pageNav.innerHTML = html;
@@ -137,8 +137,6 @@ async function loadClient(client) {
       <div class="bar" title="${money(value)}" style="height:${Math.max(8, (value / maxSpend) * 100)}%"></div>
     `).join('');
   }
-
-  setTimeout(bindTilt, 30);
 }
 
 async function loadTasks() {
@@ -229,33 +227,6 @@ function showToast(message = 'Notificação registrada') {
   if (toast.querySelector('strong')) toast.querySelector('strong').textContent = message;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 3200);
-}
-
-function bindTilt() {
-  document.querySelectorAll('.tilt').forEach((element) => {
-    if (element.dataset.tiltBound) return;
-    element.dataset.tiltBound = '1';
-    element.addEventListener('mousemove', (event) => {
-      const rect = element.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      const depth = Number(element.dataset.depth || 8);
-      element.style.transform = `perspective(900px) rotateX(${(-y * depth).toFixed(2)}deg) rotateY(${(x * depth).toFixed(2)}deg)`;
-    });
-    element.addEventListener('mouseleave', () => {
-      element.style.transform = 'perspective(900px) rotateX(0) rotateY(0)';
-    });
-  });
-}
-
-function bindParallax() {
-  window.addEventListener('mousemove', (event) => {
-    const x = (event.clientX / window.innerWidth - 0.5) * 18;
-    const y = (event.clientY / window.innerHeight - 0.5) * 18;
-    document.querySelectorAll('.orb').forEach((orb, index) => {
-      orb.style.translate = `${(x * (index + 1)) / 3}px ${(y * (index + 1)) / 3}px`;
-    });
-  });
 }
 
 init();
