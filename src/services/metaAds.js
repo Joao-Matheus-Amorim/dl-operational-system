@@ -17,13 +17,13 @@ class MetaAdsClient {
       throw new Error('META_ACCESS_TOKEN não configurado. Crie um arquivo .env baseado no .env.example.');
     }
 
-    if (!this.accessToken && this.dryRun) {
-      logger.warn('[DRY RUN] META_ACCESS_TOKEN não configurado. A Meta API será simulada com dados vazios.');
+    if (this.dryRun) {
+      logger.warn('[DRY RUN] Meta API será simulada. Nenhuma chamada real será feita.');
     }
   }
 
   async request(path, params = {}, method = 'GET') {
-    if (this.dryRun && !this.accessToken) {
+    if (this.dryRun) {
       logger.info(`[DRY RUN] Meta API simulada: ${method} ${path}`);
       return { data: [], paging: null };
     }
@@ -46,15 +46,15 @@ class MetaAdsClient {
   }
 
   async validateToken() {
-    if (this.dryRun && !this.accessToken) {
-      return { id: 'dry-run', name: 'Meta API simulada sem token' };
+    if (this.dryRun) {
+      return { id: 'dry-run', name: 'Meta API simulada' };
     }
     const me = await this.request('/me', { fields: 'id,name' });
     return me;
   }
 
   async getAdAccount(adAccountId) {
-    if (this.dryRun && !this.accessToken) {
+    if (this.dryRun) {
       return {
         id: adAccountId,
         name: 'Conta simulada',
@@ -85,7 +85,7 @@ class MetaAdsClient {
   }
 
   async getInsights({ client, level, since, until }) {
-    if (this.dryRun && !this.accessToken) {
+    if (this.dryRun) {
       logger.info(`[DRY RUN] Retornando insights vazios para ${client.name} | nível ${level} | ${since} até ${until}`);
       return [];
     }
