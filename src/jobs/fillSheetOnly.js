@@ -30,6 +30,15 @@ function numberValue(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function isConfiguredAdAccount(adAccountId) {
+  const value = String(adAccountId || '').trim();
+  if (!value) return false;
+  if (value.includes('PREENCHER')) return false;
+  if (value.includes('ID_DA_CONTA')) return false;
+  if (['act_123', 'act_456', 'act_789', 'act_000', 'act_000000'].includes(value)) return false;
+  return /^act_\d{6,}$/.test(value);
+}
+
 function totalsFromRows(rows) {
   return rows.reduce(
     (acc, row) => ({
@@ -75,8 +84,8 @@ async function fillSheetOnly({ clients, since, until, dryRun = false }) {
     let unitsProcessed = 0;
 
     for (const unit of client.units || []) {
-      if (!unit.adAccountId || unit.adAccountId.includes('PREENCHER')) {
-        logger.warn(`Pulando ${client.name} / ${unit.name}: adAccountId não configurado.`);
+      if (!isConfiguredAdAccount(unit.adAccountId)) {
+        logger.warn(`Pulando ${client.name} / ${unit.name}: adAccountId inválido ou exemplo (${unit.adAccountId || 'vazio'}). Use um ID real como act_123456789012345.`);
         continue;
       }
 
@@ -124,4 +133,4 @@ async function fillSheetOnly({ clients, since, until, dryRun = false }) {
   return summaries;
 }
 
-module.exports = { fillSheetOnly, dateRangeDays, dayToRow };
+module.exports = { fillSheetOnly, dateRangeDays, dayToRow, isConfiguredAdAccount };
