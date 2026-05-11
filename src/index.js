@@ -16,6 +16,8 @@ const { analyzeCampaigns } = require('./jobs/analyzeCampaigns');
 const { buildDashboard } = require('./jobs/buildDashboard');
 const { checkAlerts } = require('./jobs/checkAlerts');
 const { fillSheetOnly } = require('./jobs/fillSheetOnly');
+const { loadUnits, filterUnits, validateRegistry } = require('./config/clientRegistry');
+const { fillDentalSheet } = require('./jobs/dentalSheetFill');
 
 async function validate(clients, dryRun = false) {
   const metaClients = getMetaClients(clients);
@@ -44,19 +46,76 @@ async function validate(clients, dryRun = false) {
   }
 }
 
+function cleanScope(scope = {}) {
+  return Object.fromEntries(Object.entries(scope).filter(([, value]) => value !== null && value !== undefined && value !== ''));
+}
+
+function printRegistryList(args) {
+  const scope = cleanScope(args.scope);
+  const units = filterUnits(loadUnits(), scope);
+  const limited = args.limit ? units.slice(0, args.limit) : units;
+
+  logger.info(`Unidades encontradas: ${units.length}`);
+  for (const unit of limited) {
+    logger.info([
+      unit.companyId,
+      unit.group,
+      unit.segment,
+      unit.state,
+      unit.city || '-',
+      unit.name,
+      unit.adAccountId,
+      `${unit.sheetName}!${unit.columns.leads}/${unit.columns.value}`,
+    ].join(' | '));
+  }
+  if (limited.length < units.length) logger.info(`... mais ${units.length - limited.length} unidades`);
+}
+
+function printRegistryValidation(args) {
+  const scope = cleanScope(args.scope);
+  const report = validateRegistry(scope);
+  logger.info(`Registry validate | total=${report.total} válidas=${report.valid} inválidas=${report.invalid}`);
+
+  for (const item of report.results.filter((result) => !result.ok)) {
+    logger.warn(`${item.unit.name} (${item.unit.state}) — ${item.errors.join('; ')}`);
+  }
+}
+
 async function main() {
   const args = parseArgs();
-  const clients = getClients(args.client);
-  const metaClients = getMetaClients(clients);
-  const sheetOnlyClients = getSheetOnlyClients(clients);
   const defaultRange = currentMonthRange();
   const since = args.since || defaultRange.since;
   const until = args.until || defaultRange.until;
 
   logger.info('='.repeat(70));
-  logger.info(`Comando: ${args.command} | Cliente: ${args.client} | Período: ${since} até ${until}`);
+  logger.info(`Comando: ${args.command} | Período: ${since} até ${until}`);
   logger.info(`Dry-run: ${args.dryRun} | No-actions: ${args.noActions}`);
   logger.info('='.repeat(70));
+
+  if (args.command === 'registry:list') {
+    printRegistryList(args);
+    return;
+  }
+
+  if (args.command === 'registry:validate') {
+    printRegistryValidation(args);
+    return;
+  }
+
+  if (['dental:fill', 'dental-sheet:fill'].includes(args.command)) {
+    const result = await fillDentalSheet({ scope: cleanScope(args.scope), since, until, dryRun: args.dryRun });
+    logger.info(`Dental fill finalizado | unidades=${result.totalUnits} sucesso=${result.success} puladas=${result.skipped} erros=${result.errors}`);
+    for (const item of result.results.filter((entry) => entry.status !== 'success')) {
+      logger.warn(`${item.unitName} (${item.state}) — ${item.status}: ${item.error}`);
+    }
+    return;
+  }
+
+  const clients = getClients(args.client);
+  const metaClients = getMetaClients(clients);
+  const sheetOnlyClients = getSheetOnlyClients(clients);
+
+  logger.info(`Cliente legado: ${args.client}`);
 
   if (['validate', 'validar'].includes(args.command)) {
     await validate(clients, args.dryRun);
@@ -104,7 +163,7 @@ async function main() {
     return;
   }
 
-  throw new Error(`Comando inválido: ${args.command}. Use run, preenchimento, sync, analyze, dashboard, alerts ou validate.`);
+  throw new Error(`Comando inválido: ${args.command}. Use registry:list, registry:validate, dental:fill, run, preenchimento, sync, analyze, dashboard, alerts ou validate.`);
 }
 
 main().catch((error) => {
