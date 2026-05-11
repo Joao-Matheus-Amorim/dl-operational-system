@@ -75,7 +75,7 @@ Guarulhos Nazaré
 
 ## 5. Campos que a automação deve preencher
 
-A automação deve preencher, preferencialmente, apenas os campos de entrada operacional:
+A automação deve preencher apenas os campos de entrada operacional:
 
 ```text
 Leads
@@ -133,21 +133,36 @@ A automação deve localizar a linha do dia correspondente e preencher as coluna
 
 ---
 
-## 8. Totais
+## 8. Fonte dos dados — conta Meta central compartilhada
 
-A planilha deve manter totais por:
+No caso Dental Leads, a fonte de dados é uma **conta Meta Ads central** que administra as campanhas de todas as clínicas.
 
-- clínica no mês;
-- dia consolidado;
-- estado no mês.
-
-Sempre que possível, os totais devem permanecer como fórmulas da planilha para evitar sobrescrever regras visuais e cálculos do cliente.
-
-A automação deve focar em preencher os dados brutos diários:
+Portanto, o modelo correto não é:
 
 ```text
-Leads por dia
-Valor por dia
+uma clínica = uma conta de anúncio
+```
+
+O modelo correto é:
+
+```text
+uma empresa Dental Leads
+  -> uma conta Meta Ads central
+      -> campanhas representam clínicas/unidades
+          -> cada clínica possui filtro campaignMatch
+```
+
+A leitura principal para a planilha diária deve usar:
+
+```text
+level=campaign
+```
+
+Depois da coleta, o sistema filtra as campanhas de cada clínica e soma:
+
+```text
+Leads do dia
+Valor gasto do dia
 ```
 
 ---
@@ -160,99 +175,135 @@ Para preencher a planilha, cada clínica precisa ter um mapeamento entre:
 Clínica
 Estado
 Aba da planilha
-Conta de anúncio Meta Ads
+Conta Meta Ads central
+Filtro de campanha da clínica
 Coluna de Leads
 Coluna de CPL
 Coluna de Valor
 Linha inicial dos dias
 ```
 
-Exemplo:
+Exemplo de configuração do estado:
+
+```json
+{
+  "meta": {
+    "mode": "shared_ad_account",
+    "adAccountId": "act_PREENCHER_CONTA_CENTRAL",
+    "insightLevel": "campaign",
+    "unitMatchField": "campaign_name"
+  }
+}
+```
+
+Exemplo de unidade por nome de campanha:
 
 ```json
 {
   "key": "pimentas",
   "name": "Pimentas",
-  "state": "SP",
-  "city": "Guarulhos",
-  "sheetName": "SP · MAIO",
-  "adAccountId": "act_123456789012345",
-  "columns": {
-    "leads": "C",
-    "cpl": "D",
-    "value": "E"
-  },
-  "rowOffset": 2
+  "campaignMatch": {
+    "contains": ["Pimentas"]
+  }
+}
+```
+
+Exemplo de unidade por IDs de campanha:
+
+```json
+{
+  "key": "pimentas",
+  "name": "Pimentas",
+  "campaignMatch": {
+    "ids": ["1234567890", "9876543210"]
+  }
 }
 ```
 
 ---
 
-## 10. Modelo de configuração recomendado
+## 10. Regra de correspondência por campanha
 
-A empresa odontológica deve possuir uma configuração de unidades/clínicas.
+O sistema deve aceitar três formas de correspondência:
 
-Exemplo:
+### 10.1 Por ID
+
+Usar quando a campanha precisa ser mapeada com precisão máxima.
+
+```json
+{
+  "campaignMatch": {
+    "ids": ["1234567890"]
+  }
+}
+```
+
+### 10.2 Por nome exato
+
+Usar quando o nome da campanha é padronizado.
+
+```json
+{
+  "campaignMatch": {
+    "exact": ["Dental Leads | SP | Pimentas | Leads"]
+  }
+}
+```
+
+### 10.3 Por contém
+
+Usar na fase inicial, quando o nome da unidade aparece dentro do nome da campanha.
+
+```json
+{
+  "campaignMatch": {
+    "contains": ["Pimentas"]
+  }
+}
+```
+
+---
+
+## 11. Modelo de configuração recomendado
 
 ```json
 {
   "companyId": "cmp_dental_leads",
   "companyName": "Dental Leads",
+  "group": "servicos",
   "segment": "odontologia",
-  "states": ["SP", "BA"],
+  "state": "SP",
   "spreadsheetId": "1xglEDDEf7ZIwx_dFnHuL_i9ZPC15vpXAz9Tlscsz3V0",
+  "sheetName": "SP · MAIO",
+  "rowOffset": 2,
+  "meta": {
+    "mode": "shared_ad_account",
+    "adAccountId": "act_PREENCHER_CONTA_CENTRAL",
+    "insightLevel": "campaign"
+  },
+  "columnLayout": {
+    "firstColumn": "C",
+    "unitWidth": 3,
+    "fields": ["leads", "cpl", "value"]
+  },
   "units": [
     {
       "key": "pimentas",
       "name": "Pimentas",
-      "state": "SP",
-      "sheetName": "SP · MAIO",
-      "adAccountId": "act_PREENCHER",
-      "columns": {
-        "leads": "C",
-        "cpl": "D",
-        "value": "E"
+      "campaignMatch": {
+        "contains": ["Pimentas"]
       }
     },
     {
       "key": "guarulhos_nazare",
       "name": "Guarulhos Nazaré",
-      "state": "SP",
-      "sheetName": "SP · MAIO",
-      "adAccountId": "act_PREENCHER",
-      "columns": {
-        "leads": "F",
-        "cpl": "G",
-        "value": "H"
+      "campaignMatch": {
+        "contains": ["Guarulhos Nazaré", "Nazare"]
       }
     }
   ]
 }
 ```
-
----
-
-## 11. Fonte dos dados
-
-A fonte de dados deve ser o Meta Ads.
-
-A automação deve puxar dados por conta de anúncio ou unidade configurada.
-
-Para a planilha diária, o nível principal de leitura pode ser:
-
-```text
-level=account
-```
-
-ou, quando necessário:
-
-```text
-level=campaign
-level=adset
-level=ad
-```
-
-A planilha canônica exige o resumo diário por clínica, mas o sistema também pode guardar detalhes por campanha, conjunto e criativo em abas auxiliares.
 
 ---
 
@@ -262,14 +313,16 @@ A planilha canônica exige o resumo diário por clínica, mas o sistema também 
 1. Carregar empresa Dental Leads
 2. Carregar unidades/clínicas do estado e mês
 3. Para cada clínica:
-   3.1 Validar adAccountId
-   3.2 Buscar métricas do Meta Ads por dia
-   3.3 Somar leads do dia
-   3.4 Somar gasto do dia
-   3.5 Localizar linha do dia
-   3.6 Escrever Leads
-   3.7 Escrever Valor
-   3.8 Preservar fórmula de CPL
+   3.1 Herdar conta Meta Ads central
+   3.2 Validar adAccountId central
+   3.3 Buscar insights level=campaign por dia
+   3.4 Filtrar campanhas pelo campaignMatch da clínica
+   3.5 Somar leads do dia
+   3.6 Somar gasto do dia
+   3.7 Localizar linha do dia
+   3.8 Escrever Leads
+   3.9 Escrever Valor
+   3.10 Preservar fórmula de CPL
 4. Atualizar log de execução
 5. Gerar resumo de sucesso/falha
 ```
@@ -332,7 +385,8 @@ Antes de preencher, o sistema deve validar:
 - clínica ativa;
 - coluna de Leads configurada;
 - coluna de Valor configurada;
-- conta Meta Ads válida;
+- conta Meta Ads central válida;
+- filtro `campaignMatch` configurado;
 - período válido;
 - linha do dia encontrada;
 - Service Account com acesso à planilha;
@@ -367,6 +421,8 @@ O módulo de preenchimento da planilha estará pronto quando:
 
 - conseguir mapear cada clínica para suas 3 colunas;
 - conseguir identificar a aba correta por estado e mês;
+- conseguir usar uma conta Meta central compartilhada;
+- conseguir filtrar campanhas por clínica;
 - conseguir preencher Leads e Valor por dia;
 - conseguir preservar fórmulas de CPL;
 - conseguir preservar totais e formatação;
@@ -381,7 +437,7 @@ O módulo de preenchimento da planilha estará pronto quando:
 
 ### M1 — Cadastro e Importação de Clientes
 
-Responsável por cadastrar empresa, estados, clínicas, contas Meta Ads, planilhas e colunas.
+Responsável por cadastrar empresa, estados, clínicas, conta Meta central, planilha, colunas e filtros de campanha.
 
 ### M2 — Preenchimento da Planilha Dental Leads
 
@@ -398,3 +454,5 @@ Responsável por criar abas auxiliares e análises mais profundas.
 A planilha Dental Leads deve ser tratada como contrato de integração.
 
 Isso significa que o sistema deve se adaptar ao layout dela, e não obrigar o cliente a mudar o layout para se adaptar ao sistema.
+
+A conta Meta central compartilhada é parte do contrato operacional do caso Dental Leads.
