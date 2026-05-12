@@ -212,7 +212,7 @@ async function main() {
     if (metaClients.length) {
       await syncSheets({ clients: metaClients, since, until, dryRun: args.dryRun });
       const analysis = await analyzeCampaigns({ clients: metaClients, since, until, dryRun: args.dryRun, noActions: args.noActions });
-      await buildDashboard({ clients: metaClients, since, until, dryRun, analyzedAdsByClient: analysis.analyzedAdsByClient });
+      await buildDashboard({ clients: metaClients, since, until, dryRun: args.dryRun, analyzedAdsByClient: analysis.analyzedAdsByClient });
       await checkAlerts({ clients: metaClients, dryRun: args.dryRun });
     }
     return;
