@@ -1,11 +1,33 @@
 const axios = require('axios');
 const { logger } = require('../utils/logger');
+const {
+  saveNotification,
+  listPersistedNotifications,
+  saveWhatsappReply,
+  listPersistedWhatsappReplies,
+} = require('../database/repositories');
 
 const notifications = [];
 const whatsappReplies = [];
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function persistNotification(notification) {
+  try {
+    saveNotification(notification);
+  } catch (error) {
+    logger.warn(`Falha ao persistir notificação ${notification.id}: ${error.message}`);
+  }
+}
+
+function persistWhatsappReply(reply) {
+  try {
+    saveWhatsappReply(reply);
+  } catch (error) {
+    logger.warn(`Falha ao persistir resposta WhatsApp ${reply.id}: ${error.message}`);
+  }
 }
 
 function createNotification({
@@ -33,14 +55,19 @@ function createNotification({
     status,
   };
   notifications.unshift(notification);
+  persistNotification(notification);
   return notification;
 }
 
 function listNotifications({ limit = 50 } = {}) {
+  const persisted = listPersistedNotifications({ limit });
+  if (persisted) return persisted;
   return notifications.slice(0, limit);
 }
 
 function listWhatsappReplies({ limit = 50 } = {}) {
+  const persisted = listPersistedWhatsappReplies({ limit });
+  if (persisted) return persisted;
   return whatsappReplies.slice(0, limit);
 }
 
@@ -69,6 +96,7 @@ async function dispatchWhatsapp(notification, { dryRun = false } = {}) {
     notification.status = 'mock_sent';
     notification.sentAt = nowIso();
     notification.provider = provider;
+    persistNotification(notification);
     logger.warn(`[WHATSAPP MOCK] ${text}`);
     return { ok: true, dryRun: true, provider, notificationId: notification.id, message: text };
   }
@@ -76,6 +104,7 @@ async function dispatchWhatsapp(notification, { dryRun = false } = {}) {
   if (provider !== 'zapi') {
     notification.status = 'skipped_provider_unsupported';
     notification.provider = provider;
+    persistNotification(notification);
     logger.warn(`Provider WhatsApp não suportado: ${provider}. Mensagem registrada como mock.`);
     return { ok: false, provider, skipped: true, notificationId: notification.id };
   }
@@ -88,6 +117,7 @@ async function dispatchWhatsapp(notification, { dryRun = false } = {}) {
   if (!instance || !token || !phone) {
     notification.status = 'skipped_missing_zapi_env';
     notification.provider = provider;
+    persistNotification(notification);
     logger.warn('Z-API incompleta. Mensagem registrada, mas não enviada.');
     return { ok: false, skipped: true, reason: 'missing_zapi_env', notificationId: notification.id };
   }
@@ -100,6 +130,7 @@ async function dispatchWhatsapp(notification, { dryRun = false } = {}) {
   notification.sentAt = nowIso();
   notification.provider = provider;
   notification.providerResponse = response.data;
+  persistNotification(notification);
 
   return { ok: true, provider, notificationId: notification.id, response: response.data };
 }
@@ -122,6 +153,7 @@ function registerWhatsappReply(rawBody = {}) {
     interpretedAction: interpretReply(text),
   };
   whatsappReplies.unshift(reply);
+  persistWhatsappReply(reply);
   return reply;
 }
 
