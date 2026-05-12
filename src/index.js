@@ -9,6 +9,7 @@ const {
 const { parseArgs } = require('./utils/cli');
 const { currentMonthRange } = require('./utils/date');
 const { resolveDateRange } = require('./domain/dateRangeResolver');
+const { getCompany } = require('./config/companyLoader');
 const { logger } = require('./utils/logger');
 const { MetaAdsClient } = require('./services/metaAds');
 const { GoogleSheetsClient } = require('./services/googleSheets');
@@ -49,6 +50,17 @@ async function validate(clients, dryRun = false) {
 
 function cleanScope(scope = {}) {
   return Object.fromEntries(Object.entries(scope).filter(([, value]) => value !== null && value !== undefined && value !== ''));
+}
+
+function resolveCompanyContext(scope = {}, args = {}) {
+  const companyId = scope.company || 'cmp_dental_leads';
+  const company = getCompany(companyId) || {};
+  return {
+    companyId,
+    company,
+    timeZone: args.timeZone || company.timeZone || process.env.DEFAULT_CLIENT_TIMEZONE || 'UTC',
+    defaultDateMode: args.defaultDateMode || company.defaultDateMode || 'month-to-date',
+  };
 }
 
 function printRegistryList(args) {
@@ -104,6 +116,8 @@ function printDentalFillResult(result) {
 
 async function main() {
   const args = parseArgs();
+  const scope = cleanScope(args.scope);
+  const companyContext = resolveCompanyContext(scope, args);
   const defaultRange = currentMonthRange();
   const operationalRange = resolveDateRange({
     since: args.since,
@@ -112,12 +126,14 @@ async function main() {
     today: args.today,
     pendingMonth: args.pendingMonth,
     monthToDate: args.monthToDate,
+    timeZone: companyContext.timeZone,
+    defaultDateMode: companyContext.defaultDateMode,
   });
   const since = operationalRange.since || defaultRange.since;
   const until = operationalRange.until || defaultRange.until;
 
   logger.info('='.repeat(70));
-  logger.info(`Comando: ${args.command} | Período: ${since} até ${until} | modo=${operationalRange.mode}`);
+  logger.info(`Comando: ${args.command} | Período: ${since} até ${until} | modo=${operationalRange.mode} | dataOperacional=${operationalRange.operationalDate} | fuso=${operationalRange.timeZone}`);
   logger.info(`Dry-run: ${args.dryRun} | No-actions: ${args.noActions}`);
   logger.info('='.repeat(70));
 
@@ -133,7 +149,7 @@ async function main() {
 
   if (['dental:fill', 'dental-sheet:fill'].includes(args.command)) {
     const result = await fillDentalSheet({
-      scope: cleanScope(args.scope),
+      scope,
       since,
       until,
       dryRun: args.dryRun,
