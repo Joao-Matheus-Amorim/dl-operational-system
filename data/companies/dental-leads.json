@@ -5,5 +5,8 @@
   "defaultGroup": "servicos",
   "enabled": true,
   "spreadsheetId": "1xglEDDEf7ZIwx_dFnHuL_i9ZPC15vpXAz9Tlscsz3V0",
+  "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1xglEDDEf7ZIwx_dFnHuL_i9ZPC15vpXAz9Tlscsz3V0/edit?pli=1&gid=498302069#gid=498302069",
+  "primarySheetGid": "498302069",
+  "primarySheetName": "SP · MAIO",
   "description": "Empresa odontológica usada como primeiro modelo operacional de planilha literal Dental Leads."
 }
