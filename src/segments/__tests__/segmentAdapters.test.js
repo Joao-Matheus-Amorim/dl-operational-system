@@ -9,20 +9,41 @@ describe('segment adapters', () => {
     expect(getSegmentAdapter('imobiliaria')).toBe(genericAdapter);
   });
 
-  test('odontologia adapter matches shared account campaigns by contains, exact and ids', () => {
+  test('odontologia adapter matches campaigns by contains', () => {
     const unit = {
       meta: { mode: 'shared_ad_account' },
       campaignMatch: {
         contains: ['Clínica São João'],
-        exact: ['Campanha Exata'],
-        ids: ['123'],
       },
     };
 
     expect(odontologiaAdapter.matchMetricToUnit({ campaign_name: 'Lead - Clinica Sao Joao - Maio' }, unit)).toBe(true);
-    expect(odontologiaAdapter.matchMetricToUnit({ campanha: 'campanha exata' }, unit)).toBe(true);
-    expect(odontologiaAdapter.matchMetricToUnit({ campaign_id: '123' }, unit)).toBe(true);
     expect(odontologiaAdapter.matchMetricToUnit({ campaign_name: 'Outra unidade' }, unit)).toBe(false);
+  });
+
+  test('odontologia adapter matches campaigns by exact name', () => {
+    const unit = {
+      meta: { mode: 'shared_ad_account' },
+      campaignMatch: {
+        exact: ['Campanha Exata'],
+      },
+    };
+
+    expect(odontologiaAdapter.matchMetricToUnit({ campanha: 'campanha exata' }, unit)).toBe(true);
+    expect(odontologiaAdapter.matchMetricToUnit({ campanha: 'campanha quase exata' }, unit)).toBe(false);
+  });
+
+  test('odontologia adapter matches campaigns by id with highest priority', () => {
+    const unit = {
+      meta: { mode: 'shared_ad_account' },
+      campaignMatch: {
+        contains: ['Clínica São João'],
+        ids: ['123'],
+      },
+    };
+
+    expect(odontologiaAdapter.matchMetricToUnit({ campaign_id: '123' }, unit)).toBe(true);
+    expect(odontologiaAdapter.matchMetricToUnit({ campaign_id: '999', campaign_name: 'Lead - Clinica Sao Joao - Maio' }, unit)).toBe(false);
   });
 
   test('odontologia adapter filters rows only for shared ad accounts', () => {
