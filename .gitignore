@@ -7,3 +7,9 @@ coverage/
 npm-debug.log*
 pnpm-lock.yaml
 package-lock.json
+
+# Local persistence
+/data/local/
+*.db
+*.db-shm
+*.db-wal
