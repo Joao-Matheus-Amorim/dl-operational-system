@@ -1,6 +1,15 @@
 const { listClients, getClient, consolidated } = require('../src/web/mockData');
 const { notifyWhatsapp, listNotifications } = require('../src/services/notificationCenter');
 const { listTasks, listTaskRuns, runTask } = require('../src/services/taskRunner');
+const {
+  setSecurityHeaders,
+  enforceRateLimit,
+  requireOperationalAuth,
+  validateTaskRunBody,
+  validateAlertDemoBody,
+  validateActionBody,
+  validationError,
+} = require('../src/security/httpSecurity');
 
 function sendJson(res, status, payload) {
   res.statusCode = status;
@@ -21,8 +30,21 @@ function readBody(req) {
   });
 }
 
+function protectPublicApi(req, res) {
+  return enforceRateLimit(req, res, { scope: 'api_public', max: Number(process.env.API_RATE_LIMIT_MAX || 120) });
+}
+
+function protectOperationalApi(req, res) {
+  if (!enforceRateLimit(req, res, { scope: 'api_operational', max: Number(process.env.OPERATIONAL_RATE_LIMIT_MAX || 30) })) return false;
+  return requireOperationalAuth(req, res);
+}
+
 module.exports = async function handler(req, res) {
+  setSecurityHeaders(res);
+
   try {
+    if (!protectPublicApi(req, res)) return;
+
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const path = url.pathname;
 
@@ -66,13 +88,19 @@ module.exports = async function handler(req, res) {
     if (path === '/api/tasks/runs') return sendJson(res, 200, listTaskRuns());
 
     if (path === '/api/tasks/run' && req.method === 'POST') {
+      if (!protectOperationalApi(req, res)) return;
       const body = await readBody(req);
+      const validation = validateTaskRunBody(body);
+      if (!validation.ok) return validationError(res, validation.errors);
       const run = await runTask(body.taskKey || 'full_cycle', { real: body.real === true });
       return sendJson(res, 200, run);
     }
 
     if (path === '/api/alerts/send-demo' && req.method === 'POST') {
+      if (!protectOperationalApi(req, res)) return;
       const body = await readBody(req);
+      const validation = validateAlertDemoBody(body);
+      if (!validation.ok) return validationError(res, validation.errors);
       const result = await notifyWhatsapp({
         client: body.client || 'Ótica 2',
         type: body.type || 'SEM_LEAD_COM_GASTO',
@@ -86,7 +114,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (path === '/api/actions/pause-creative' && req.method === 'POST') {
+      if (!protectOperationalApi(req, res)) return;
       const body = await readBody(req);
+      const validation = validateActionBody(body);
+      if (!validation.ok) return validationError(res, validation.errors);
       const result = await notifyWhatsapp({
         client: body.client || 'Sistema',
         type: 'ACTION_PAUSE_CREATIVE',
@@ -100,7 +131,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (path === '/api/actions/test-campaign' && req.method === 'POST') {
+      if (!protectOperationalApi(req, res)) return;
       const body = await readBody(req);
+      const validation = validateActionBody(body);
+      if (!validation.ok) return validationError(res, validation.errors);
       const result = await notifyWhatsapp({
         client: body.client || 'Sistema',
         type: 'ACTION_CREATE_TEST_CAMPAIGN',
