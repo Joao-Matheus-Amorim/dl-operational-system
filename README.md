@@ -6,15 +6,16 @@ Plataforma de automação operacional para gestão de tráfego pago, com foco in
 
 ## Gate atual de qualidade
 
-Antes de conectar Meta Ads, Google Sheets e WhatsApp em produção, o projeto deve concluir a **Q1 — Fundação de Qualidade, Segurança e Testes**.
+Antes de conectar Meta Ads, Google Sheets e WhatsApp em produção, o projeto deve concluir Q1 e Q2.
 
-Issue oficial:
+- **Q1 — Fundação de Qualidade, Segurança e Testes**: implementado parcialmente e validado localmente.
+- **Q2 — Persistência Local**: implementação inicial adicionada com SQLite local e fallback seguro.
 
-```text
-#1 — Sprint 1: Fundação de Qualidade, Segurança e Testes antes das integrações reais
-```
+Enquanto Q1/Q2 não forem validados também em CI/deploy, integrações reais devem ser tratadas como **staging/controladas**, não produção.
 
-### Q1 implementado neste bloco
+---
+
+## Q1 implementado
 
 - Token Meta migrado para header `Authorization: Bearer <token>`.
 - Retry controlado para Meta API em 408, 429, 5xx e timeouts.
@@ -29,14 +30,46 @@ Issue oficial:
 - Token operacional obrigatório para POSTs sensíveis.
 - Validação de payloads em `/api/tasks/run`, `/api/alerts/send-demo` e ações simuladas.
 
-### Ainda pendente antes de produção
+---
 
-- Persistência local SQLite para notificações e execuções.
-- Logs persistentes por execução/unidade.
-- Validação real em staging com Meta Ads e Google Sheets.
-- Revisão final dos workflows após instalação das dependências.
+## Q2 implementado inicialmente
 
-Enquanto Q1/Q2 não estiverem concluídos, integrações reais devem ser tratadas como **staging/controladas**, não produção.
+- Dependência `better-sqlite3` adicionada.
+- Fundação SQLite em `src/database/db.js`.
+- Repositórios em `src/database/repositories.js`.
+- Tabelas criadas automaticamente:
+  - `notifications`
+  - `whatsapp_replies`
+  - `job_runs`
+  - `job_run_steps`
+  - `unit_run_results`
+- `notificationCenter.js` agora persiste notificações e respostas WhatsApp quando SQLite está disponível.
+- `taskRunner.js` agora persiste execuções e etapas quando SQLite está disponível.
+- `dentalSheetFill.js` agora persiste resultados por clínica/unidade quando SQLite está disponível.
+- Banco local ignorado pelo Git em `/data/local/` e arquivos `*.db`, `*.db-wal`, `*.db-shm`.
+- Testes de repositórios SQLite adicionados.
+
+### Configuração SQLite
+
+Por padrão, o SQLite usa:
+
+```text
+data/local/app.db
+```
+
+Para alterar:
+
+```env
+SQLITE_PATH=E:/danz/data/local/app.db
+```
+
+Para desativar a persistência local:
+
+```env
+SQLITE_ENABLED=false
+```
+
+Se o ambiente não suportar `better-sqlite3`, o sistema não deve quebrar: ele registra aviso e usa fallback em memória.
 
 ---
 
@@ -71,39 +104,23 @@ Uma clínica não precisa ter uma conta de anúncio própria. Ela pode ser uma u
 - Clínicas SP e Bahia em:
   - `data/clients/servicos/odontologia/sp/dental-leads-sp.json`
   - `data/clients/servicos/odontologia/ba/dental-leads-ba.json`
-- M1 Registry:
-  - loader de empresas;
-  - loader de clínicas;
-  - validação de registry;
-  - filtros por empresa, grupo, segmento, estado, cidade e módulo;
-  - derivação automática de colunas da planilha.
-- M2 Dental Sheet:
-  - conta Meta Ads compartilhada;
-  - filtro de campanhas por clínica via `campaignMatch`;
-  - escrita cirúrgica em `Leads` e `Valor`;
-  - preservação de CPL, totais e formatação;
-  - suporte a `dry-run`.
-- Q1 parcial:
-  - testes unitários;
-  - CI;
-  - headers de segurança;
-  - rate limit;
-  - proteção de endpoints operacionais;
-  - validação de payloads;
-  - retry controlado na Meta API.
+- M1 Registry funcional via CLI.
+- M2 Dental Sheet funcional via CLI/dry-run.
+- Q1 segurança/testes implementado parcialmente.
+- Q2 persistência local implementado inicialmente.
 
 ### Pendente para produção
 
-- Concluir Q2 — persistência local.
+- Validar CI remoto após Q2.
+- Validar comportamento do SQLite no ambiente de deploy.
 - Informar o `act_...` real da conta Meta central.
 - Configurar `META_ACCESS_TOKEN`.
 - Configurar Service Account Google Sheets.
 - Validar leitura real do Meta Ads em staging.
 - Validar escrita real na planilha em staging.
-- Criar logs persistentes.
 - Criar WhatsApp API real.
 - Criar login, painel Admin e contas somente leitura.
-- Criar banco de dados.
+- Definir banco cloud definitivo para produção se Vercel serverless não atender persistência local.
 
 ---
 
@@ -164,34 +181,12 @@ Não use isso em produção.
 
 ## M1 — Registry de empresas e clínicas
 
-Listar todas as unidades:
-
 ```bash
 npm run registry:list
-```
-
-Listar por estado:
-
-```bash
 npm run registry:list -- --state SP
 npm run registry:list -- --state BA
-```
-
-Listar por empresa, segmento ou módulo:
-
-```bash
-npm run registry:list -- --company cmp_dental_leads
-npm run registry:list -- --segment odontologia
-npm run registry:list -- --module fillDentalSheet
-```
-
-Validar cadastro:
-
-```bash
 npm run registry:validate
 ```
-
-Enquanto a conta Meta central estiver como `act_PREENCHER_CONTA_CENTRAL`, a validação deve avisar que o `adAccountId` está pendente.
 
 ---
 
@@ -216,47 +211,6 @@ Execução real controlada:
 npm run dental:fill -- --state SP --since 2026-05-01 --until 2026-05-11
 ```
 
-A execução real exige Q1/Q2 concluídas, credenciais Meta Ads e Google Sheets configuradas no `.env`.
-
----
-
-## Conta Meta central compartilhada
-
-Nos arquivos Dental, o estado usa uma conta central:
-
-```json
-{
-  "meta": {
-    "mode": "shared_ad_account",
-    "adAccountId": "act_PREENCHER_CONTA_CENTRAL",
-    "insightLevel": "campaign",
-    "unitMatchField": "campaign_name"
-  }
-}
-```
-
-Cada clínica define como encontrar suas campanhas:
-
-```json
-{
-  "key": "pimentas",
-  "name": "Pimentas",
-  "campaignMatch": {
-    "contains": ["Pimentas"]
-  }
-}
-```
-
-Também é possível mapear por ID:
-
-```json
-{
-  "campaignMatch": {
-    "ids": ["1234567890", "9876543210"]
-  }
-}
-```
-
 ---
 
 ## Estrutura atual
@@ -270,6 +224,7 @@ data/
       odontologia/
         sp/dental-leads-sp.json
         ba/dental-leads-ba.json
+  local/                 # ignorado pelo Git, usado pelo SQLite local
 
 docs/
   PMBOK_PROJECT_MANAGEMENT_PLAN.md
@@ -282,36 +237,15 @@ docs/
 
 src/
   config/
-    clientRegistry.js
-    companyLoader.js
-    clients.js
-    rules.js
+  database/
+    db.js
+    repositories.js
+    __tests__/
   domain/
-    modules.js
-    metrics.js
-    analyzer.js
-    __tests__/
   jobs/
-    dentalSheetFill.js
-    fillSheetOnly.js
-    syncSheets.js
-    analyzeCampaigns.js
-    buildDashboard.js
-    checkAlerts.js
   security/
-    httpSecurity.js
-    __tests__/
   services/
-    metaAds.js
-    googleSheets.js
-    metaActions.js
-    notificationCenter.js
-    __tests__/
   utils/
-    cli.js
-    date.js
-    logger.js
-    sheetsColumns.js
 .github/
   workflows/
     ci.yml
@@ -321,24 +255,22 @@ src/
 
 ## Governança documental
 
-A partir deste marco, cada bloco completo de construção deve atualizar:
+Cada bloco completo de construção deve atualizar:
 
-1. `README.md` — estado operacional e comandos atuais;
+1. `README.md`;
 2. documento funcional/técnico correspondente em `docs/`;
-3. `docs/SYSTEM_ARCHITECTURE_UML.md` ou UML específico — quando houver mudança arquitetural, fluxo ou entidade;
+3. UML específico quando houver mudança arquitetural;
 4. `docs/ROADMAP.md`.
-
-Um bloco só é considerado completo quando código e documentação estão coerentes.
 
 ---
 
 ## Roadmap atualizado
 
-1. **Q1 Fundação de Qualidade** — segurança e testes implementados parcialmente; persistência fica em Q2.
-2. **Q2 Persistência Local** — SQLite para notificações, execuções e histórico mínimo.
+1. **Q1 Fundação de Qualidade** — segurança e testes implementados parcialmente.
+2. **Q2 Persistência Local** — implementação SQLite inicial adicionada.
 3. **M1 Registry** — funcional via JSON/CLI.
 4. **M2 Dental Sheet literal** — funcional via JSON/CLI e dry-run.
-5. **M3 Métricas detalhadas** — bloqueado por Q2.
-6. **M4 WhatsApp API** — bloqueado por Q2.
-7. **M5 Painel Admin/Cliente** — cadastro visual, usuários, permissões e execução manual.
-8. **M6 Módulos Admin avançados** — upload de criativos, criação de campanhas e pausa com aprovação.
+5. **M3 Métricas detalhadas** — próximo após validação Q2.
+6. **M4 WhatsApp API** — após Q2 validado.
+7. **M5 Painel Admin/Cliente**.
+8. **M6 Módulos Admin avançados**.
