@@ -6,15 +6,12 @@ Este roadmap deve ser atualizado a cada bloco de construção completo.
 
 ## Regra de prioridade atual
 
-Antes de conectar Meta Ads, Google Sheets e WhatsApp em produção, o projeto deve concluir a **Sprint Q1 — Fundação de Qualidade, Segurança e Testes**.
+Antes de conectar Meta Ads, Google Sheets e WhatsApp em produção, o projeto deve passar por:
 
-Issue oficial de controle:
+1. **Q1 — Fundação de Qualidade, Segurança e Testes**.
+2. **Q2 — Persistência Local e Histórico Operacional**.
 
-```text
-#1 — Sprint 1: Fundação de Qualidade, Segurança e Testes antes das integrações reais
-```
-
-Nenhuma integração real deve ser considerada pronta para produção enquanto os critérios de segurança, testes, CI/CD e persistência mínima não forem atendidos.
+Nenhuma integração real deve ser considerada produção enquanto os critérios de segurança, testes, CI/CD e persistência mínima não forem validados.
 
 ---
 
@@ -22,12 +19,12 @@ Nenhuma integração real deve ser considerada pronta para produção enquanto o
 
 | Marco | Nome | Status | Objetivo |
 |---|---|---|---|
-| Q1 | Fundação de Qualidade, Segurança e Testes | Prioridade máxima | Corrigir segurança, testes, CI/CD, validação e resiliência antes das APIs reais |
-| Q2 | Persistência Local | Próximo | Persistir notificações, execuções e histórico mínimo em SQLite |
+| Q1 | Fundação de Qualidade, Segurança e Testes | Implementado parcialmente e validado localmente | Segurança, testes, CI/CD, validação e resiliência antes das APIs reais |
+| Q2 | Persistência Local | Implementação inicial adicionada | Persistir notificações, execuções e resultados por unidade em SQLite |
 | M1 | Registry de empresas e clínicas | Em construção funcional | Cadastrar/importar empresas, estados, clínicas, módulos e escopos |
 | M2 | Planilha Dental literal | Em construção funcional | Preencher Leads e Valor na planilha real do cliente |
-| M3 | Métricas detalhadas | Bloqueado por Q1/Q2 | Criar abas auxiliares de campanhas, conjuntos, criativos e logs |
-| M4 | WhatsApp API | Bloqueado por Q1/Q2 | Enviar mensagens e alertas conforme módulos habilitados |
+| M3 | Métricas detalhadas | Próximo após validação Q2 | Criar abas auxiliares de campanhas, conjuntos, criativos e logs |
+| M4 | WhatsApp API | Após validação Q2 | Enviar mensagens e alertas conforme módulos habilitados |
 | M5 | Painel Admin e Cliente | Pendente | Criar interface para gestão e contas somente leitura |
 | M6 | Módulos Admin avançados | Pendente | Subir criativos, criar campanhas e pausar anúncios com aprovação |
 
@@ -37,44 +34,28 @@ Nenhuma integração real deve ser considerada pronta para produção enquanto o
 
 ### Status
 
-Prioridade máxima antes das integrações reais.
+Implementado parcialmente e validado localmente.
 
-### Objetivo
+### Entregue
 
-Resolver os gaps críticos que impedem uso seguro em produção:
+- `MetaAdsClient` usa `Authorization: Bearer <token>`.
+- Retry controlado para Meta API.
+- Jest configurado.
+- `npm test` criado.
+- Testes de `metrics.js`.
+- Testes de `analyzer.js`.
+- Testes do `MetaAdsClient`.
+- Testes de validação/rate limit HTTP.
+- GitHub Actions CI criado.
+- Headers de segurança no servidor e na função serverless.
+- Rate limiting básico.
+- Proteção de endpoints operacionais por `OPERATIONAL_API_TOKEN`.
+- Validação de payloads POST.
 
-- token Meta exposto em query string;
-- ausência de testes;
-- ausência de rate limiting;
-- ausência de headers de segurança;
-- endpoints operacionais sem proteção;
-- ausência de CI;
-- validação de input insuficiente;
-- retry/error handling insuficiente.
+### Próximo refinamento Q1
 
-### Entregas obrigatórias
-
-- Corrigir `MetaAdsClient` para usar `Authorization: Bearer <token>`.
-- Adicionar testes unitários para `metrics.js`.
-- Adicionar testes unitários para `analyzer.js`.
-- Criar script `npm test`.
-- Criar GitHub Actions com `npm run check` e `npm test`.
-- Adicionar headers de segurança no servidor HTTP.
-- Adicionar rate limiting básico para endpoints operacionais.
-- Proteger `/api/tasks/run` e endpoints POST sensíveis.
-- Validar payloads de entrada.
-- Padronizar logging.
-- Adicionar retry controlado para falhas transitórias da Meta API.
-
-### Critérios de aceite
-
-- `npm test` existe e passa.
-- `npm run check` passa.
-- CI roda automaticamente em PRs.
-- Meta token não aparece em query string.
-- Endpoints operacionais têm proteção mínima.
-- Erros transitórios têm retry controlado.
-- README e documentos refletem a prioridade Q1.
+- Confirmar CI remoto após Q2.
+- Melhorar logging estruturado em jobs legados.
 
 ---
 
@@ -82,20 +63,40 @@ Resolver os gaps críticos que impedem uso seguro em produção:
 
 ### Status
 
-Próximo marco após Q1.
+Implementação inicial adicionada.
 
 ### Objetivo
 
 Eliminar dependência exclusiva de memória para notificações, alertas e histórico de execuções.
 
-### Entregas previstas
+### Entregue
 
-- Adicionar SQLite local.
-- Criar tabelas para notificações.
-- Criar tabelas para execuções de jobs.
-- Criar tabelas para resultados por unidade/clínica.
-- Migrar `notificationCenter.js` para persistir notificações.
-- Persistir resultados do `dentalSheetFill`.
+- Dependência `better-sqlite3` adicionada.
+- Fundação SQLite em `src/database/db.js`.
+- Repositórios em `src/database/repositories.js`.
+- Tabelas criadas automaticamente:
+  - `notifications`;
+  - `whatsapp_replies`;
+  - `job_runs`;
+  - `job_run_steps`;
+  - `unit_run_results`.
+- `notificationCenter.js` persiste notificações e respostas quando SQLite está disponível.
+- `taskRunner.js` persiste execuções e steps quando SQLite está disponível.
+- `dentalSheetFill.js` persiste resultados por clínica/unidade.
+- `.gitignore` protege `/data/local/` e arquivos `.db`.
+- Testes de repositório SQLite adicionados.
+
+### Decisão técnica
+
+A persistência local usa SQLite como primeira camada, com fallback seguro se o ambiente não suportar `better-sqlite3`.
+
+### Próximos itens Q2
+
+- Validar `npm install`, `npm run check` e `npm test` localmente após dependência nativa.
+- Confirmar deploy/CI com `better-sqlite3`.
+- Criar endpoint administrativo para consultar `unit_run_results`.
+- Criar limpeza/rotação de histórico antigo.
+- Avaliar banco cloud definitivo para produção em Vercel, como Supabase/Postgres.
 
 ---
 
@@ -115,10 +116,6 @@ Implementado parcialmente e funcional via CLI.
 - Filtro por empresa, grupo, segmento, estado, cidade e módulo.
 - Validação de registry.
 - Derivação automática de colunas da planilha.
-
-### Ajuste profissional aplicado
-
-O M1 foi refinado para suportar uma conta Meta Ads central compartilhada por empresa/estado, em vez de exigir uma conta por clínica.
 
 ### Próximos itens do M1
 
@@ -144,29 +141,15 @@ Implementado parcialmente e funcional via CLI/dry-run.
 - Suporte a dry-run.
 - Suporte a conta Meta Ads central compartilhada.
 - Filtro de campanhas por clínica via `campaignMatch`.
-
-### Decisão atual
-
-A fonte de dados do caso Dental é uma conta Meta Ads central. As clínicas são identificadas dentro dela por campanhas.
-
-Fluxo oficial:
-
-```text
-Conta Meta central
-  -> insights level=campaign
-  -> filtrar campanhas por campaignMatch da clínica
-  -> somar leads e gasto
-  -> escrever Leads e Valor na planilha literal
-```
+- Persistência de resultado por unidade em `unit_run_results`.
 
 ### Próximos itens do M2
 
 - Substituir `act_PREENCHER_CONTA_CENTRAL` pelo ID real da conta central.
-- Validar `META_ACCESS_TOKEN` real apenas depois de Q1.
-- Validar Google Service Account real apenas depois de Q1.
+- Validar `META_ACCESS_TOKEN` real em staging.
+- Validar Google Service Account real em staging.
 - Rodar dry-run com uma data única.
-- Rodar execução real controlada em uma ou duas clínicas depois de Q1/Q2.
-- Criar log persistente por execução.
+- Rodar execução real controlada em uma ou duas clínicas.
 
 ---
 
@@ -174,7 +157,7 @@ Conta Meta central
 
 ### Status
 
-Bloqueado por Q1/Q2.
+Próximo após validação Q2.
 
 ### Objetivo
 
@@ -195,7 +178,7 @@ Adicionar abas auxiliares sem alterar a planilha literal do cliente.
 
 ### Status
 
-Bloqueado por Q1/Q2.
+Após validação Q2.
 
 ### Objetivo
 
@@ -218,25 +201,6 @@ Enviar mensagens e alertas pelo WhatsApp conforme módulos habilitados.
 
 Criar interface para gestão e visualização.
 
-### Painel Admin
-
-- Gerenciar empresas.
-- Gerenciar clínicas.
-- Gerenciar módulos.
-- Gerenciar regras.
-- Gerenciar usuários.
-- Executar jobs manualmente.
-- Ver logs.
-
-### Painel Cliente
-
-- Dashboard somente leitura.
-- Campanhas.
-- Conjuntos.
-- Criativos.
-- Alertas.
-- Relatórios.
-
 ---
 
 ## M6 — Módulos Admin avançados
@@ -244,16 +208,6 @@ Criar interface para gestão e visualização.
 ### Objetivo
 
 Implementar ações operacionais avançadas para clientes com módulos habilitados.
-
-### Ações previstas
-
-- Upload de criativos.
-- Criação de campanhas.
-- Criação de conjuntos.
-- Pausa de anúncios.
-- Campanha teste isolada.
-- Aprovação antes de execução.
-- Auditoria obrigatória.
 
 ---
 
