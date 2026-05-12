@@ -5,6 +5,7 @@ const { logger } = require('../utils/logger');
 const { saveUnitRunResult } = require('../database/repositories');
 const { resolveSheetNameForUnit } = require('../domain/sheetResolver');
 const { getSegmentAdapter, odontologiaAdapter } = require('../segments');
+const { applyDelivery, normalizeDeliveryMode, shouldWriteSheets } = require('../services/deliveryManager');
 
 function dateRangeDays(since, until) {
   const days = [];
@@ -131,14 +132,16 @@ function buildSkippedResultForBlockedUnit({ unit, diagnostic, since, until, dryR
   };
 }
 
-async function updateCells({ sheetsClient, spreadsheetId, updates, dryRun }) {
-  if (dryRun) {
-    logger.info(`[DRY RUN] Atualizaria ${updates.length} células em ${spreadsheetId}`);
+async function updateCells({ sheetsClient, spreadsheetId, updates, dryRun, delivery = 'none' }) {
+  if (!shouldWriteSheets({ dryRun, delivery })) {
+    const mode = normalizeDeliveryMode(delivery);
+    const prefix = dryRun ? '[DRY RUN]' : '[APPROVAL]';
+    logger.info(`${prefix} Atualizaria ${updates.length} células em ${spreadsheetId}`);
     for (const update of updates.slice(0, 40)) {
-      logger.info(`[DRY RUN] ${update.range} = ${update.values[0][0]}`);
+      logger.info(`${prefix} ${update.range} = ${update.values[0][0]}`);
     }
-    if (updates.length > 40) logger.info(`[DRY RUN] ... mais ${updates.length - 40} células`);
-    return { dryRun: true, cells: updates.length };
+    if (updates.length > 40) logger.info(`${prefix} ... mais ${updates.length - 40} células`);
+    return { dryRun, approvalBlocked: mode === 'approval' && !dryRun, cells: updates.length };
   }
 
   const sheets = await sheetsClient.getSheets();
@@ -179,6 +182,7 @@ async function fillDentalSheet({
   delivery = 'none',
   sheetName = null,
 } = {}) {
+  const deliveryMode = normalizeDeliveryMode(delivery);
   const adapter = odontologiaAdapter;
   const units = filterUnits(loadUnits(), { ...scope, module: scope.module || adapter.defaultModule, enabled: true });
   const meta = new MetaAdsClient({ dryRun });
@@ -190,7 +194,7 @@ async function fillDentalSheet({
   const diagnostics = groupedSharedAccountDiagnostics(units);
   const blockedUnitKeys = new Set();
 
-  logger.info(`Dental Sheet Fill | unidades: ${units.length} | período: ${since} até ${until} | campos=${selectedFields.join(',')} | delivery=${delivery}`);
+  logger.info(`Dental Sheet Fill | unidades: ${units.length} | período: ${since} até ${until} | campos=${selectedFields.join(',')} | delivery=${deliveryMode}`);
 
   for (const diagnostic of diagnostics) {
     for (const unit of diagnostic.units) {
@@ -203,7 +207,7 @@ async function fillDentalSheet({
         dryRun,
         scope,
         fields: selectedFields,
-        delivery,
+        delivery: deliveryMode,
         jobRunId,
       });
       results.push(result);
@@ -230,7 +234,7 @@ async function fillDentalSheet({
       groupedSkip: false,
       startedAt: new Date().toISOString(),
       finishedAt: null,
-      details: { since, until, dryRun, scope, fields: selectedFields, delivery },
+      details: { since, until, dryRun, scope, fields: selectedFields, delivery: deliveryMode },
     };
 
     try {
@@ -277,17 +281,17 @@ async function fillDentalSheet({
   const sheetResults = [];
   for (const [spreadsheetId, updates] of updatesBySpreadsheet.entries()) {
     if (updates.length === 0) continue;
-    const writeResult = await updateCells({ sheetsClient, spreadsheetId, updates, dryRun });
+    const writeResult = await updateCells({ sheetsClient, spreadsheetId, updates, dryRun, delivery: deliveryMode });
     sheetResults.push({ spreadsheetId, ...writeResult });
   }
 
-  return {
+  const result = {
     scope,
     since,
     until,
     dryRun,
     fields: selectedFields,
-    delivery,
+    delivery: deliveryMode,
     diagnostics: diagnostics.map(({ units: diagnosticUnits, ...diagnostic }) => ({
       ...diagnostic,
       unitKeys: diagnosticUnits.map((unit) => unit.key),
@@ -299,6 +303,9 @@ async function fillDentalSheet({
     sheetResults,
     results,
   };
+
+  result.deliveryResult = applyDelivery(result, deliveryMode);
+  return result;
 }
 
 module.exports = {
