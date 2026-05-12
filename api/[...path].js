@@ -2,6 +2,11 @@ const { listClients, getClient, consolidated } = require('../src/web/mockData');
 const { notifyWhatsapp, listNotifications } = require('../src/services/notificationCenter');
 const { listTasks, listTaskRuns, runTask } = require('../src/services/taskRunner');
 const {
+  listPersistedNotifications,
+  listPersistedJobRuns,
+  listUnitRunResults,
+} = require('../src/database/repositories');
+const {
   setSecurityHeaders,
   enforceRateLimit,
   requireOperationalAuth,
@@ -37,6 +42,21 @@ function protectPublicApi(req, res) {
 function protectOperationalApi(req, res) {
   if (!enforceRateLimit(req, res, { scope: 'api_operational', max: Number(process.env.OPERATIONAL_RATE_LIMIT_MAX || 30) })) return false;
   return requireOperationalAuth(req, res);
+}
+
+function numberParam(url, name, fallback) {
+  const value = Number(url.searchParams.get(name));
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function filterUnitResults(rows = [], url) {
+  const state = url.searchParams.get('state');
+  const status = url.searchParams.get('status');
+  return rows.filter((row) => {
+    if (state && String(row.state || '').toLowerCase() !== state.toLowerCase()) return false;
+    if (status && String(row.status || '').toLowerCase() !== status.toLowerCase()) return false;
+    return true;
+  });
 }
 
 module.exports = async function handler(req, res) {
@@ -86,6 +106,26 @@ module.exports = async function handler(req, res) {
     if (path === '/api/notifications') return sendJson(res, 200, listNotifications());
     if (path === '/api/tasks') return sendJson(res, 200, listTasks());
     if (path === '/api/tasks/runs') return sendJson(res, 200, listTaskRuns());
+
+    if (path === '/api/history/notifications') {
+      if (!protectOperationalApi(req, res)) return;
+      const limit = numberParam(url, 'limit', 50);
+      return sendJson(res, 200, { ok: true, data: listPersistedNotifications({ limit }) || [] });
+    }
+
+    if (path === '/api/history/job-runs') {
+      if (!protectOperationalApi(req, res)) return;
+      const limit = numberParam(url, 'limit', 50);
+      return sendJson(res, 200, { ok: true, data: listPersistedJobRuns({ limit }) || [] });
+    }
+
+    if (path === '/api/history/unit-results') {
+      if (!protectOperationalApi(req, res)) return;
+      const limit = numberParam(url, 'limit', 100);
+      const jobRunId = url.searchParams.get('jobRunId') || undefined;
+      const rows = listUnitRunResults({ jobRunId, limit }) || [];
+      return sendJson(res, 200, { ok: true, data: filterUnitResults(rows, url) });
+    }
 
     if (path === '/api/tasks/run' && req.method === 'POST') {
       if (!protectOperationalApi(req, res)) return;
