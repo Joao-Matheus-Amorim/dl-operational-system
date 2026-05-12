@@ -6,10 +6,10 @@ const { listClients, getClient, consolidated } = require('./mockData');
 const { notifyWhatsapp, listNotifications } = require('../services/notificationCenter');
 const { listTasks, listTaskRuns, runTask } = require('../services/taskRunner');
 const {
-  listPersistedNotifications,
-  listPersistedJobRuns,
-  listUnitRunResults,
-} = require('../database/repositories');
+  listNotificationHistory,
+  listJobRunHistory,
+  listUnitResultHistory,
+} = require('../services/historyService');
 const { logger } = require('../utils/logger');
 const {
   setSecurityHeaders,
@@ -73,21 +73,6 @@ function protectOperationalApi(req, res) {
   return requireOperationalAuth(req, res);
 }
 
-function numberParam(url, name, fallback) {
-  const value = Number(url.searchParams.get(name));
-  return Number.isFinite(value) && value > 0 ? value : fallback;
-}
-
-function filterUnitResults(rows = [], url) {
-  const state = url.searchParams.get('state');
-  const status = url.searchParams.get('status');
-  return rows.filter((row) => {
-    if (state && String(row.state || '').toLowerCase() !== state.toLowerCase()) return false;
-    if (status && String(row.status || '').toLowerCase() !== status.toLowerCase()) return false;
-    return true;
-  });
-}
-
 async function router(req, res) {
   setSecurityHeaders(res);
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -143,22 +128,27 @@ async function router(req, res) {
 
   if (url.pathname === '/api/history/notifications') {
     if (!protectOperationalApi(req, res)) return;
-    const limit = numberParam(url, 'limit', 50);
-    return sendJson(res, { ok: true, data: listPersistedNotifications({ limit }) || [] });
+    return sendJson(res, listNotificationHistory({
+      limit: url.searchParams.get('limit'),
+    }));
   }
 
   if (url.pathname === '/api/history/job-runs') {
     if (!protectOperationalApi(req, res)) return;
-    const limit = numberParam(url, 'limit', 50);
-    return sendJson(res, { ok: true, data: listPersistedJobRuns({ limit }) || [] });
+    return sendJson(res, listJobRunHistory({
+      limit: url.searchParams.get('limit'),
+    }));
   }
 
   if (url.pathname === '/api/history/unit-results') {
     if (!protectOperationalApi(req, res)) return;
-    const limit = numberParam(url, 'limit', 100);
-    const jobRunId = url.searchParams.get('jobRunId') || undefined;
-    const rows = listUnitRunResults({ jobRunId, limit }) || [];
-    return sendJson(res, { ok: true, data: filterUnitResults(rows, url) });
+    return sendJson(res, listUnitResultHistory({
+      limit: url.searchParams.get('limit'),
+      jobRunId: url.searchParams.get('jobRunId'),
+      state: url.searchParams.get('state'),
+      status: url.searchParams.get('status'),
+      companyId: url.searchParams.get('companyId') || url.searchParams.get('company'),
+    }));
   }
 
   if (url.pathname === '/api/tasks/run' && req.method === 'POST') {
