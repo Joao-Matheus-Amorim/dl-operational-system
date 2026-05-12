@@ -6,11 +6,40 @@ function isCliDryRun() {
   return process.argv.includes('--dry-run');
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetriableStatus(status) {
+  return status === 408 || status === 429 || (status >= 500 && status <= 599);
+}
+
+function isRetriableError(error) {
+  if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') return true;
+  const status = error.response?.status;
+  return isRetriableStatus(status);
+}
+
+function safeMetaMessage(error) {
+  const metaError = error.response?.data?.error;
+  return metaError?.message || error.message || 'Erro desconhecido na Meta API';
+}
+
 class MetaAdsClient {
-  constructor({ accessToken = process.env.META_ACCESS_TOKEN, version = process.env.META_API_VERSION || 'v19.0', dryRun = isCliDryRun() } = {}) {
+  constructor({
+    accessToken = process.env.META_ACCESS_TOKEN,
+    version = process.env.META_API_VERSION || 'v19.0',
+    dryRun = isCliDryRun(),
+    timeoutMs = Number(process.env.META_TIMEOUT_MS || 30000),
+    maxRetries = Number(process.env.META_MAX_RETRIES || 2),
+    retryBaseDelayMs = Number(process.env.META_RETRY_BASE_DELAY_MS || 800),
+  } = {}) {
     this.dryRun = dryRun;
     this.accessToken = accessToken;
     this.version = version;
+    this.timeoutMs = timeoutMs;
+    this.maxRetries = maxRetries;
+    this.retryBaseDelayMs = retryBaseDelayMs;
     this.baseUrl = `https://graph.facebook.com/${version}`;
 
     if (!this.accessToken && !this.dryRun) {
@@ -22,6 +51,10 @@ class MetaAdsClient {
     }
   }
 
+  getAuthHeaders() {
+    return { Authorization: `Bearer ${this.accessToken}` };
+  }
+
   async request(path, params = {}, method = 'GET') {
     if (this.dryRun) {
       logger.info(`[DRY RUN] Meta API simulada: ${method} ${path}`);
@@ -29,20 +62,33 @@ class MetaAdsClient {
     }
 
     const url = `${this.baseUrl}/${path.replace(/^\//, '')}`;
-    try {
-      const response = await axios.request({
-        url,
-        method,
-        params: { access_token: this.accessToken, ...params },
-        timeout: 30000,
-      });
-      return response.data;
-    } catch (error) {
-      const metaError = error.response?.data?.error;
-      const message = metaError?.message || error.message;
-      logger.error(`Meta API falhou em ${path}: ${message}`);
-      throw new Error(message);
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
+      try {
+        const response = await axios.request({
+          url,
+          method,
+          params,
+          headers: this.getAuthHeaders(),
+          timeout: this.timeoutMs,
+        });
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const message = safeMetaMessage(error);
+        const status = error.response?.status;
+        const canRetry = attempt < this.maxRetries && isRetriableError(error);
+
+        logger.warn(`Meta API falhou em ${path}${status ? ` | status ${status}` : ''}: ${message}${canRetry ? ' | retry agendado' : ''}`);
+
+        if (!canRetry) break;
+        const delay = this.retryBaseDelayMs * 2 ** attempt;
+        await sleep(delay);
+      }
     }
+
+    throw new Error(safeMetaMessage(lastError));
   }
 
   async validateToken() {
@@ -131,4 +177,9 @@ class MetaAdsClient {
   }
 }
 
-module.exports = { MetaAdsClient };
+module.exports = {
+  MetaAdsClient,
+  isRetriableStatus,
+  isRetriableError,
+  safeMetaMessage,
+};
