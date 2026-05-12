@@ -5,8 +5,8 @@ function analysisText(value) {
   return String(value || '').toLowerCase().trim();
 }
 
-function formatMetric(value, formatter = num) {
-  return formatter(Number(value || 0));
+function renderMetric(label, value) {
+  return `<div class="analysis-metric"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`;
 }
 
 function adsetsForCampaign(data, campaignName) {
@@ -19,10 +19,6 @@ function creativesForAdset(data, adsetName) {
 
 function creativesForCampaign(data, campaignName) {
   return (data.creatives || []).filter((creative) => analysisText(creative.campaign) === analysisText(campaignName));
-}
-
-function renderMetric(label, value) {
-  return `<div class="analysis-metric"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`;
 }
 
 function renderCampaignTree(data) {
@@ -147,5 +143,12 @@ function renderCreativeMini(creative) {
   `;
 }
 
+async function bootstrapCampaignTree() {
+  if (!window.campaignTreeList || typeof api !== 'function') return;
+  const data = await api('/api/dashboard?client=all');
+  renderCampaignTree(data);
+}
+
 window.renderCampaignTree = renderCampaignTree;
 window.selectCampaign = selectCampaign;
+bootstrapCampaignTree();
