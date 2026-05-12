@@ -11,6 +11,7 @@ Antes de conectar Meta Ads, Google Sheets e WhatsApp em produção, o projeto de
 - **Q1 — Fundação de Qualidade, Segurança e Testes**: implementado parcialmente e validado localmente.
 - **Q2 — Persistência Local**: implementação inicial adicionada com SQLite local e fallback seguro.
 - **Fases Operacionais 1 e 2**: resolução de período e aba por data/estado implementadas inicialmente.
+- **Data operacional do cliente**: o período padrão usa o fuso configurado da empresa, não o fuso do servidor.
 
 Enquanto Q1/Q2 não forem validados também em CI/deploy, integrações reais devem ser tratadas como **staging/controladas**, não produção.
 
@@ -45,6 +46,37 @@ SQLITE_ENABLED=true
 ```
 
 Se o ambiente não suportar `better-sqlite3`, o sistema não deve quebrar: ele registra aviso e usa fallback em memória.
+
+---
+
+## Data operacional do cliente
+
+Cada empresa pode ter fuso e modo padrão de data:
+
+```json
+{
+  "timeZone": "America/Sao_Paulo",
+  "defaultDateMode": "month-to-date"
+}
+```
+
+Isso significa que, se o operador não passar data, o sistema usa a data real do cliente naquele fuso e busca o mês inteiro até essa data.
+
+Exemplo: se a data real do cliente for `2026-05-12`, o padrão é:
+
+```text
+2026-05-01 até 2026-05-12
+```
+
+O operador ainda pode personalizar quando quiser:
+
+```bash
+npm run dental:fill:dry -- --state SP --day 2026-05-10
+npm run dental:fill:dry -- --state SP --since 2026-05-01 --until 2026-05-06
+npm run dental:fill:dry -- --state SP --pending-month
+npm run dental:fill:dry -- --state SP --month-to-date
+npm run dental:fill:dry -- --state SP --time-zone America/Sao_Paulo
+```
 
 ---
 
@@ -109,33 +141,11 @@ npm run registry:validate
 
 ### Modos de período
 
-Dia específico:
-
 ```bash
 npm run dental:fill:dry -- --state SP --day 2026-05-10
-```
-
-Hoje:
-
-```bash
 npm run dental:fill:dry -- --state SP --today
-```
-
-Mês pendente até ontem:
-
-```bash
 npm run dental:fill:dry -- --state SP --pending-month
-```
-
-Mês até hoje:
-
-```bash
 npm run dental:fill:dry -- --state SP --month-to-date
-```
-
-Intervalo customizado:
-
-```bash
 npm run dental:fill:dry -- --state SP --since 2026-05-01 --until 2026-05-11
 ```
 
@@ -254,8 +264,8 @@ Cada bloco completo de construção deve atualizar:
 
 1. **Q1 Fundação de Qualidade** — segurança e testes implementados parcialmente.
 2. **Q2 Persistência Local** — implementação SQLite inicial adicionada.
-3. **Fase 1/2 Operacional** — resolução de aba e período implementada inicialmente.
+3. **Fase 1/2 Operacional** — resolução de aba, período e fuso do cliente implementada inicialmente.
 4. **Fase 3** — campos personalizáveis iniciados com `--fields`.
-5. **Fase 5** — diagnóstico agrupado da conta central pendente.
+5. **Fase 5.2** — diagnóstico agrupado da conta central implementado.
 6. **Fase 6** — endpoints de histórico.
 7. **Fase 7** — teste real controlado.
