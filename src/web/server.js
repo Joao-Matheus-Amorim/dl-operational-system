@@ -5,6 +5,16 @@ const path = require('path');
 const { listClients, getClient, consolidated } = require('./mockData');
 const { notifyWhatsapp, listNotifications } = require('../services/notificationCenter');
 const { listTasks, listTaskRuns, runTask } = require('../services/taskRunner');
+const { logger } = require('../utils/logger');
+const {
+  setSecurityHeaders,
+  enforceRateLimit,
+  requireOperationalAuth,
+  validateTaskRunBody,
+  validateAlertDemoBody,
+  validateActionBody,
+  validationError,
+} = require('../security/httpSecurity');
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, '../../public');
@@ -49,8 +59,20 @@ function contentTypeFor(filePath) {
   return 'text/html; charset=utf-8';
 }
 
+function protectPublicApi(req, res) {
+  return enforceRateLimit(req, res, { scope: 'api_public', max: Number(process.env.API_RATE_LIMIT_MAX || 120) });
+}
+
+function protectOperationalApi(req, res) {
+  if (!enforceRateLimit(req, res, { scope: 'api_operational', max: Number(process.env.OPERATIONAL_RATE_LIMIT_MAX || 30) })) return false;
+  return requireOperationalAuth(req, res);
+}
+
 async function router(req, res) {
+  setSecurityHeaders(res);
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  if (url.pathname.startsWith('/api/') && !protectPublicApi(req, res)) return;
 
   if (url.pathname === '/api/health') {
     return sendJson(res, { ok: true, service: 'trafego-automator', mode: process.env.NODE_ENV || 'development' });
@@ -100,13 +122,19 @@ async function router(req, res) {
   }
 
   if (url.pathname === '/api/tasks/run' && req.method === 'POST') {
+    if (!protectOperationalApi(req, res)) return;
     const body = await readBody(req);
+    const validation = validateTaskRunBody(body);
+    if (!validation.ok) return validationError(res, validation.errors);
     const run = await runTask(body.taskKey || 'full_cycle', { real: body.real === true });
     return sendJson(res, run);
   }
 
   if (url.pathname === '/api/alerts/send-demo' && req.method === 'POST') {
+    if (!protectOperationalApi(req, res)) return;
     const body = await readBody(req);
+    const validation = validateAlertDemoBody(body);
+    if (!validation.ok) return validationError(res, validation.errors);
     const result = await notifyWhatsapp({
       client: body.client || 'Ótica 2',
       type: body.type || 'SEM_LEAD_COM_GASTO',
@@ -120,7 +148,10 @@ async function router(req, res) {
   }
 
   if (url.pathname === '/api/actions/pause-creative' && req.method === 'POST') {
+    if (!protectOperationalApi(req, res)) return;
     const body = await readBody(req);
+    const validation = validateActionBody(body);
+    if (!validation.ok) return validationError(res, validation.errors);
     const result = await notifyWhatsapp({
       client: body.client || 'Sistema',
       type: 'ACTION_PAUSE_CREATIVE',
@@ -134,7 +165,10 @@ async function router(req, res) {
   }
 
   if (url.pathname === '/api/actions/test-campaign' && req.method === 'POST') {
+    if (!protectOperationalApi(req, res)) return;
     const body = await readBody(req);
+    const validation = validateActionBody(body);
+    if (!validation.ok) return validationError(res, validation.errors);
     const result = await notifyWhatsapp({
       client: body.client || 'Sistema',
       type: 'ACTION_CREATE_TEST_CAMPAIGN',
@@ -156,5 +190,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Dashboard rodando em http://localhost:${PORT}`);
+  logger.info(`Dashboard rodando em http://localhost:${PORT}`);
 });
