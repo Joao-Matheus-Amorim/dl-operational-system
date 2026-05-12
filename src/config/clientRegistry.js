@@ -1,27 +1,6 @@
-const fs = require('fs');
-const path = require('path');
 const { deriveUnitColumns } = require('../utils/sheetsColumns');
 const { unknownModules } = require('../domain/modules');
-
-const CLIENTS_DIR = path.join(__dirname, '../../data/clients');
-
-function walkJsonFiles(dir) {
-  if (!fs.existsSync(dir)) return [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  const files = [];
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...walkJsonFiles(fullPath));
-    if (entry.isFile() && entry.name.endsWith('.json')) files.push(fullPath);
-  }
-
-  return files;
-}
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-}
+const { loadAllClients } = require('./clientLoader');
 
 function normalizeUnit(group, unit, index) {
   const columns = unit.columns || deriveUnitColumns(group.columnLayout, index);
@@ -36,7 +15,7 @@ function normalizeUnit(group, unit, index) {
     companyName: group.companyName,
     group: group.group,
     segment: group.segment,
-    state: group.state,
+    state: unit.state || group.state,
     spreadsheetId: unit.spreadsheetId || group.spreadsheetId,
     sheetName: unit.sheetName || group.sheetName,
     rowOffset: Number(unit.rowOffset || group.rowOffset || 2),
@@ -52,13 +31,13 @@ function normalizeUnit(group, unit, index) {
   };
 }
 
-function normalizeGroup(group, sourcePath) {
+function normalizeGroup(group) {
   const units = (group.units || []).map((unit, index) => normalizeUnit(group, unit, index));
-  return { ...group, sourcePath, units };
+  return { ...group, units };
 }
 
 function loadClientGroups() {
-  return walkJsonFiles(CLIENTS_DIR).map((filePath) => normalizeGroup(readJson(filePath), filePath));
+  return loadAllClients().map(normalizeGroup);
 }
 
 function loadUnits() {
