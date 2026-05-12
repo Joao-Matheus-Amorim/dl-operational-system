@@ -80,6 +80,14 @@ describe('historyService', () => {
 
   test('normalizes and filters unit result history for dashboard usage', () => {
     const { repo, history } = freshHistory();
+    repo.saveJobRun({
+      id: 'run_1',
+      taskKey: 'dental_fill',
+      mode: 'dry_run',
+      startedAt: '2026-05-12T00:00:00.000Z',
+      status: 'success',
+      result: { ok: true },
+    });
     repo.saveUnitRunResult({
       id: 'unit_sp_success',
       jobRunId: 'run_1',
