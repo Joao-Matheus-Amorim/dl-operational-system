@@ -8,6 +8,7 @@ const {
 } = require('./config/clients');
 const { parseArgs } = require('./utils/cli');
 const { currentMonthRange } = require('./utils/date');
+const { resolveDateRange } = require('./domain/dateRangeResolver');
 const { logger } = require('./utils/logger');
 const { MetaAdsClient } = require('./services/metaAds');
 const { GoogleSheetsClient } = require('./services/googleSheets');
@@ -84,11 +85,19 @@ function printRegistryValidation(args) {
 async function main() {
   const args = parseArgs();
   const defaultRange = currentMonthRange();
-  const since = args.since || defaultRange.since;
-  const until = args.until || defaultRange.until;
+  const operationalRange = resolveDateRange({
+    since: args.since,
+    until: args.until,
+    day: args.day,
+    today: args.today,
+    pendingMonth: args.pendingMonth,
+    monthToDate: args.monthToDate,
+  });
+  const since = operationalRange.since || defaultRange.since;
+  const until = operationalRange.until || defaultRange.until;
 
   logger.info('='.repeat(70));
-  logger.info(`Comando: ${args.command} | Período: ${since} até ${until}`);
+  logger.info(`Comando: ${args.command} | Período: ${since} até ${until} | modo=${operationalRange.mode}`);
   logger.info(`Dry-run: ${args.dryRun} | No-actions: ${args.noActions}`);
   logger.info('='.repeat(70));
 
@@ -103,7 +112,15 @@ async function main() {
   }
 
   if (['dental:fill', 'dental-sheet:fill'].includes(args.command)) {
-    const result = await fillDentalSheet({ scope: cleanScope(args.scope), since, until, dryRun: args.dryRun });
+    const result = await fillDentalSheet({
+      scope: cleanScope(args.scope),
+      since,
+      until,
+      dryRun: args.dryRun,
+      fields: args.fields,
+      delivery: args.delivery,
+      sheetName: args.sheetName,
+    });
     logger.info(`Dental fill finalizado | unidades=${result.totalUnits} sucesso=${result.success} puladas=${result.skipped} erros=${result.errors}`);
     for (const item of result.results.filter((entry) => entry.status !== 'success')) {
       logger.warn(`${item.unitName} (${item.state}) — ${item.status}: ${item.error}`);
