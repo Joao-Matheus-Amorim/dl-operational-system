@@ -50,8 +50,8 @@ const ICONS: Record<string, LucideIcon> = {
  */
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const [wsName, setWsName] = React.useState(BRAND.fullName);
-  const [wsRole, setWsRole] = React.useState(BRAND.role);
+  const [wsName, setWsName] = React.useState<string>(BRAND.fullName);
+  const [wsRole, setWsRole] = React.useState<string>(BRAND.role);
 
   React.useEffect(() => {
     let mounted = true;
