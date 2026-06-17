@@ -33,7 +33,7 @@ export default function ConfiguracoesPage() {
       {/* Workspace */}
       <Card>
         <CardHeader className="flex-row items-center gap-2">
-          <Building2 className="h-4 w-4 text-neon" />
+          <Building2 className="h-4 w-4 text-neon-text" />
           <CardTitle>Dados do workspace</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -56,16 +56,16 @@ export default function ConfiguracoesPage() {
       {/* Preferências visuais */}
       <Card>
         <CardHeader className="flex-row items-center gap-2">
-          <Palette className="h-4 w-4 text-neon" />
+          <Palette className="h-4 w-4 text-neon-text" />
           <CardTitle>Preferências visuais</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-surface-muted p-3">
             <div>
               <p className="text-sm text-content">Tema escuro premium</p>
-              <p className="text-[11px] text-content-muted">Neon verde-limão sobre preto esverdeado.</p>
+              <p className="text-[11px] text-content-muted">Laranja Dental Lead sobre azul institucional.</p>
             </div>
-            <Badge className="text-neon border-neon-border bg-neon/[0.08]">Ativo</Badge>
+            <Badge className="text-neon-text border-neon-border bg-neon/[0.08]">Ativo</Badge>
           </div>
           <Button variant="secondary" onClick={() => futureFeature("Tema claro")}>
             Alternar tema (em planejamento)
@@ -76,7 +76,7 @@ export default function ConfiguracoesPage() {
       {/* Usuários */}
       <Card>
         <CardHeader className="flex-row items-center gap-2">
-          <Users className="h-4 w-4 text-neon" />
+          <Users className="h-4 w-4 text-neon-text" />
           <CardTitle>Usuários e permissões</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -104,7 +104,7 @@ export default function ConfiguracoesPage() {
       {/* Integrações */}
       <Card>
         <CardHeader className="flex-row items-center gap-2">
-          <Plug className="h-4 w-4 text-neon" />
+          <Plug className="h-4 w-4 text-neon-text" />
           <CardTitle>Integrações</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">

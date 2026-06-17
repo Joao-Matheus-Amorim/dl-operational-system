@@ -22,7 +22,7 @@ export function EmptyState({
         className
       )}
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-neon-border bg-neon/[0.08] text-neon shadow-neon">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-neon-border bg-neon/[0.08] text-neon-text shadow-neon">
         <Icon className="h-6 w-6" />
       </div>
       <p className="dl-label">{title}</p>

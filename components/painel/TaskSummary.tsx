@@ -18,7 +18,7 @@ export function TaskSummary({ stats }: { stats: SummaryStat[] }) {
             className={cn(
               "mt-2 text-3xl font-bold",
               s.tone === "alert" && "text-alert",
-              s.tone === "neon" && "text-neon",
+              s.tone === "neon" && "text-neon-text",
               (!s.tone || s.tone === "default") && "text-content"
             )}
           >

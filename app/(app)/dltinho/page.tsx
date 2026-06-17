@@ -31,7 +31,7 @@ export default function DLtinhoPage() {
         title={BRAND.ai.toUpperCase()}
         subtitle="O cérebro da DL — conversa, executa ações e recebe seus pedidos de construção."
         actions={
-          <Badge className="text-neon border-neon-border bg-neon/[0.08]">
+          <Badge className="text-neon-text border-neon-border bg-neon/[0.08]">
             <Wifi className="h-3 w-3" /> Conectado
           </Badge>
         }

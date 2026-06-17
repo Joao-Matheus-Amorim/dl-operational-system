@@ -11,12 +11,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-neon text-background hover:bg-neon-soft shadow-neon hover:shadow-neon-strong",
+          "bg-neon text-content hover:bg-neon-soft shadow-neon hover:shadow-neon-strong",
         secondary:
           "border border-white/10 bg-white/[0.04] text-content hover:bg-white/[0.07]",
         ghost: "text-content-muted hover:bg-white/[0.05] hover:text-content",
         outline:
-          "border border-neon-border text-neon hover:bg-neon/[0.08]",
+          "border border-neon-border text-neon-text hover:bg-neon/[0.08]",
         danger:
           "border border-alert/30 bg-alert/[0.08] text-alert hover:bg-alert/[0.15]",
       },

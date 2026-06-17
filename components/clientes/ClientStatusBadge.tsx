@@ -9,7 +9,7 @@ export function ClientStatusBadge({ status }: { status: ClientStatus }) {
     <Badge
       className={cn(
         status === "ativo"
-          ? "text-neon border-neon-border bg-neon/[0.08]"
+          ? "text-neon-text border-neon-border bg-neon/[0.08]"
           : "text-content-muted border-white/10 bg-white/[0.03]"
       )}
     >

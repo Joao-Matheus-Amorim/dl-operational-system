@@ -72,7 +72,7 @@ export function CalendarMonth({
               <span
                 className={cn(
                   "text-xs",
-                  isToday ? "font-semibold text-neon" : "text-content-muted"
+                  isToday ? "font-semibold text-neon-text" : "text-content-muted"
                 )}
               >
                 {format(day, "d")}

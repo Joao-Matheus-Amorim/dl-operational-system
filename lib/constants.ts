@@ -38,17 +38,17 @@ export const CLIENT_TAG_LABEL: Record<ClientTag, string> = {
 
 /** Classes de cor para tags de cliente (texto/borda/fundo). */
 export const CLIENT_TAG_STYLE: Record<ClientTag, string> = {
-  "em-dia": "text-neon border-neon-border bg-neon/[0.08]",
+  "em-dia": "text-neon-text border-neon-border bg-neon/[0.08]",
   atencao: "text-warning border-warning/30 bg-warning/[0.08]",
   critico: "text-alert border-alert/30 bg-alert/[0.08]",
 };
 
 /** Cor base por tipo de evento do calendário. */
 export const EVENT_TYPE_COLOR: Record<CalendarEventType, string> = {
-  reuniao: "#2F8CFF",
-  tarefa: "#A855F7",
-  conteudo: "#B6FF00",
-  campanha: "#A855F7",
+  reuniao: "#4F9BE8",
+  tarefa: "#D9A441",
+  conteudo: "#FF7A00",
+  campanha: "#FF8A1C",
 };
 
 export const EVENT_TYPE_LABEL: Record<CalendarEventType, string> = {

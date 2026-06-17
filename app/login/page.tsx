@@ -82,7 +82,7 @@ function LoginForm() {
             <div className="relative mb-4 flex h-16 w-16 items-center justify-center">
               <div className="absolute inset-0 animate-pulse-dot rounded-full bg-neon/[0.12] blur-2xl" />
               <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-neon-border bg-neon/[0.08] shadow-neon-strong">
-                <Sparkles className="h-6 w-6 text-neon" />
+                <Sparkles className="h-6 w-6 text-neon-text" />
               </div>
             </div>
             <p className="dl-label">{BRAND.legalName}</p>

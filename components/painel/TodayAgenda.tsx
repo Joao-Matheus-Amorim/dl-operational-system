@@ -9,7 +9,7 @@ export function TodayAgenda({ events }: { events: CalendarEvent[] }) {
     <Card>
       <CardContent className="p-5">
         <div className="mb-3 flex items-center gap-2">
-          <CalendarClock className="h-4 w-4 text-neon" />
+          <CalendarClock className="h-4 w-4 text-neon-text" />
           <p className="dl-label">Agenda de hoje</p>
         </div>
         {events.length === 0 ? (

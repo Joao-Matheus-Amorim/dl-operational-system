@@ -66,7 +66,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               exit={{ opacity: 0, y: 8, scale: 0.98 }}
               className="pointer-events-auto flex items-start gap-3 rounded-xl border border-neon-border bg-background/95 p-3.5 shadow-neon backdrop-blur-xl"
             >
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-neon" />
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-neon-text" />
               <p className="flex-1 text-sm text-content">{t.message}</p>
               <button
                 type="button"

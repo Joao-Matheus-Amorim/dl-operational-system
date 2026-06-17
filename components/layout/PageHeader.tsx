@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
  * com slot opcional de ações à direita. Reutilizado em todas as páginas
  * para manter consistência visual.
  *
- * `titleHighlight` permite destacar uma palavra do título em verde neon
+ * `titleHighlight` permite destacar uma palavra com a cor principal da marca.
  * (ex.: "VISÃO GERAL DA OPERAÇÃO" com "GERAL" em destaque).
  */
 export function PageHeader({
@@ -52,7 +52,7 @@ function renderTitle(title: string, highlight?: string) {
   return (
     <>
       {before}
-      <span className="text-neon">{highlight}</span>
+      <span className="text-neon-text">{highlight}</span>
       {after}
     </>
   );

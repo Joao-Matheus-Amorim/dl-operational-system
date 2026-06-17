@@ -71,7 +71,7 @@ export function ChatWorkspace({
             <div className="relative flex h-20 w-20 items-center justify-center">
               <div className="absolute inset-0 animate-pulse-dot rounded-full bg-neon/[0.12] blur-2xl" />
               <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-neon-border bg-neon/[0.06] shadow-neon-strong">
-                <Sparkles className="h-7 w-7 text-neon" />
+                <Sparkles className="h-7 w-7 text-neon-text" />
               </div>
             </div>
             <h2 className="text-xl font-bold text-content">{BRAND.ai.toUpperCase()}</h2>

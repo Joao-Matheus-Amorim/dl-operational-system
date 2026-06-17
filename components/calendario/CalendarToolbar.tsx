@@ -55,7 +55,7 @@ export function CalendarToolbar({
             onClick={() => onViewChange(v.key)}
             className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
               view === v.key
-                ? "bg-neon/[0.10] text-neon shadow-neon"
+                ? "bg-neon/[0.10] text-neon-text shadow-neon"
                 : "text-content-muted hover:text-content"
             }`}
           >
