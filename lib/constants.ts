@@ -38,7 +38,7 @@ export const CLIENT_TAG_LABEL: Record<ClientTag, string> = {
 
 /** Classes de cor para tags de cliente (texto/borda/fundo). */
 export const CLIENT_TAG_STYLE: Record<ClientTag, string> = {
-  "em-dia": "text-neon border-neon-border bg-neon/[0.08]",
+  "em-dia": "text-neon-text border-neon-border bg-neon/[0.08]",
   atencao: "text-warning border-warning/30 bg-warning/[0.08]",
   critico: "text-alert border-alert/30 bg-alert/[0.08]",
 };

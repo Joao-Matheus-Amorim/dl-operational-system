@@ -23,7 +23,7 @@ export function DashboardHero() {
             {BRAND.fullName.toUpperCase()} · CENTRAL OPERACIONAL
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-content md:text-4xl">
-            VISÃO <span className="text-neon">GERAL</span> DA OPERAÇÃO
+            VISÃO <span className="text-neon-text">GERAL</span> DA OPERAÇÃO
           </h1>
           <p className="text-sm text-content-muted">
             Inteligência, gestão e crescimento em um só lugar. Acompanhe clientes,
@@ -58,7 +58,7 @@ export function DashboardHero() {
         <div className="relative mx-auto flex h-32 w-32 shrink-0 items-center justify-center">
           <div className="absolute inset-0 animate-pulse-dot rounded-full bg-neon/[0.12] blur-2xl" />
           <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-neon-border bg-neon/[0.06] shadow-neon-strong">
-            <Sparkles className="h-10 w-10 text-neon" />
+            <Sparkles className="h-10 w-10 text-neon-text" />
           </div>
         </div>
       </div>

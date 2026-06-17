@@ -24,7 +24,7 @@ export function BoardCard({
           <button
             type="button"
             onClick={() => onOpen(board.id)}
-            className="text-left text-base font-semibold text-content hover:text-neon"
+            className="text-left text-base font-semibold text-content hover:text-neon-text"
           >
             {board.title}
           </button>

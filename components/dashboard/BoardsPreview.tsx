@@ -12,7 +12,7 @@ export function BoardsPreview() {
         <CardTitle>Boards</CardTitle>
         <Link
           href={ROUTES.boards}
-          className="inline-flex items-center gap-1 text-xs text-neon hover:underline"
+          className="inline-flex items-center gap-1 text-xs text-neon-text hover:underline"
         >
           Ver todos <ArrowRight className="h-3 w-3" />
         </Link>
@@ -24,7 +24,7 @@ export function BoardsPreview() {
             href={ROUTES.boards}
             className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-surface-muted p-3 transition-colors hover:border-neon-border"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-neon-border bg-neon/[0.08] text-neon">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-neon-border bg-neon/[0.08] text-neon-text">
               <KanbanSquare className="h-4 w-4" />
             </div>
             <div className="min-w-0">

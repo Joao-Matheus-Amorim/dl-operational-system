@@ -47,7 +47,7 @@ export function KanbanCard({ card }: { card: BoardCardType }) {
           {card.checklistDone}/{card.checklistTotal}
         </span>
         {assignee && (
-          <span className="flex h-6 w-6 items-center justify-center rounded-full border border-neon-border bg-neon/[0.10] text-[10px] font-semibold text-neon">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full border border-neon-border bg-neon/[0.10] text-[10px] font-semibold text-neon-text">
             {assignee.initials}
           </span>
         )}

@@ -12,7 +12,7 @@ export function ClientUpdates() {
         <CardTitle>Atualização de clientes</CardTitle>
         <Link
           href={ROUTES.clientes}
-          className="inline-flex items-center gap-1 text-xs text-neon hover:underline"
+          className="inline-flex items-center gap-1 text-xs text-neon-text hover:underline"
         >
           Ver carteira <ArrowRight className="h-3 w-3" />
         </Link>

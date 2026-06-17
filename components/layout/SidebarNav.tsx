@@ -51,7 +51,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Marca */}
       <div className="flex items-center gap-3 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-neon-border bg-neon/[0.10] font-bold text-neon shadow-neon">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-neon-border bg-neon/[0.10] font-bold text-neon-text shadow-neon">
           {BRAND.shortName}
         </div>
         <div className="leading-tight">
@@ -84,7 +84,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                       <Icon
                         className={cn(
                           "h-4 w-4 transition-colors",
-                          active ? "text-neon" : "text-content-muted group-hover:text-content"
+                          active ? "text-neon-text" : "text-content-muted group-hover:text-content"
                         )}
                       />
                       <span className="flex-1">{item.label}</span>

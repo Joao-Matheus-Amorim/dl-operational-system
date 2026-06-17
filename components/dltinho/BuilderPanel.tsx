@@ -15,7 +15,7 @@ export function BuilderPanel() {
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3 rounded-xl border border-neon-border bg-neon/[0.06] p-4">
-        <Hammer className="mt-0.5 h-5 w-5 text-neon" />
+        <Hammer className="mt-0.5 h-5 w-5 text-neon-text" />
         <div>
           <p className="text-sm font-medium text-content">
             Pedidos de construção

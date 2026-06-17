@@ -35,7 +35,7 @@ export function BriefingChecklist({
           <p className="dl-label">Briefing do mês — {monthLabel}</p>
           <div className="mt-3 flex items-center gap-3">
             <Progress value={pct} className="flex-1" />
-            <span className="text-sm font-medium text-neon">{pct}%</span>
+            <span className="text-sm font-medium text-neon-text">{pct}%</span>
           </div>
           <p className="mt-1.5 text-[11px] text-content-muted">
             {done} de {items.length} clientes com briefing concluído

@@ -23,7 +23,7 @@ export function MetricCard({
           <p className="mt-2 text-3xl font-bold text-content">{metric.value}</p>
           <p className="mt-1 text-xs text-content-muted">{metric.hint}</p>
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-neon-border bg-neon/[0.08] text-neon">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-neon-border bg-neon/[0.08] text-neon-text">
           <Icon className="h-4 w-4" />
         </div>
       </div>
@@ -36,7 +36,7 @@ export function MetricCard({
         <div
           className={cn(
             "mt-2 inline-flex items-center gap-1 text-xs font-medium",
-            positive ? "text-neon" : "text-alert"
+            positive ? "text-neon-text" : "text-alert"
           )}
         >
           {positive ? (

@@ -10,7 +10,7 @@ export function MyProjects() {
     <Card>
       <CardContent className="p-5">
         <div className="mb-3 flex items-center gap-2">
-          <FolderKanban className="h-4 w-4 text-neon" />
+          <FolderKanban className="h-4 w-4 text-neon-text" />
           <p className="dl-label">Meus projetos</p>
         </div>
         <div className="space-y-2">

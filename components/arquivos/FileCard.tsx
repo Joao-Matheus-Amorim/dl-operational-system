@@ -16,7 +16,7 @@ export function FileCard({ file }: { file: DriveFile }) {
       className="group flex cursor-pointer items-center gap-3 p-4 transition-colors hover:border-neon-border"
       onClick={() => futureFeature(`Abrir "${file.name}"`)}
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-neon-border bg-neon/[0.08] text-neon">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-neon-border bg-neon/[0.08] text-neon-text">
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">

@@ -28,7 +28,7 @@ export function WhatsAppConnection({ numbers }: { numbers: WhatsAppNumber[] }) {
           </p>
           <div className="mt-4 flex items-center gap-4">
             <div className="flex h-28 w-28 items-center justify-center rounded-xl border border-dashed border-neon-border bg-neon/[0.04]">
-              <QrCode className="h-12 w-12 text-neon" />
+              <QrCode className="h-12 w-12 text-neon-text" />
             </div>
             <Button variant="primary" onClick={() => futureFeature("Conexão via QR Code")}>
               <Plus className="h-4 w-4" /> Conectar número
@@ -50,7 +50,7 @@ export function WhatsAppConnection({ numbers }: { numbers: WhatsAppNumber[] }) {
                 <p className="text-[11px] text-content-muted">{n.phone}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="text-neon border-neon-border bg-neon/[0.08]">
+                <Badge className="text-neon-text border-neon-border bg-neon/[0.08]">
                   <span className="h-1.5 w-1.5 rounded-full bg-neon" /> on
                 </Badge>
                 <Button

@@ -52,7 +52,7 @@ function renderTitle(title: string, highlight?: string) {
   return (
     <>
       {before}
-      <span className="text-neon">{highlight}</span>
+      <span className="text-neon-text">{highlight}</span>
       {after}
     </>
   );

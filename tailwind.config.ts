@@ -19,6 +19,7 @@ const config: Config = {
         neon: {
           DEFAULT: "#FF7A00",
           soft: "#FF9A1F",
+          text: "#FFB86B",
           border: "rgba(255,122,0,0.38)",
         },
         content: {
@@ -43,8 +44,8 @@ const config: Config = {
         "2xl": "1.25rem",
       },
       boxShadow: {
-        neon: "0 0 0 1px rgba(255,122,0,0.30), 0 0 26px rgba(255,122,0,0.22)",
-        "neon-strong": "0 0 0 1px rgba(255,122,0,0.52), 0 0 36px rgba(255,122,0,0.34)",
+        neon: "0 0 0 1px rgba(255,122,0,0.38), 0 0 18px rgba(255,122,0,0.28), 0 0 42px rgba(255,122,0,0.18)",
+        "neon-strong": "0 0 0 1px rgba(255,122,0,0.62), 0 0 24px rgba(255,122,0,0.42), 0 0 64px rgba(255,122,0,0.28)",
         card: "0 8px 30px rgba(0,0,0,0.28)",
       },
       keyframes: {
