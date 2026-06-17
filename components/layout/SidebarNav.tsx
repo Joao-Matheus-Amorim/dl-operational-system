@@ -23,6 +23,8 @@ import {
 import { NAV_GROUPS } from "@/lib/routes";
 import { BRAND } from "@/lib/constants";
 import { getCurrentWorkspace } from "@/lib/repositories/workspace";
+import { WORKSPACE_UPDATED_EVENT } from "@/lib/events/workspace";
+import type { Workspace } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Mapeia o nome do ícone (string em routes.ts) para o componente lucide. */
@@ -70,6 +72,18 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  React.useEffect(() => {
+    function handleUpdate(event: Event) {
+      const ws = (event as CustomEvent<Workspace>).detail;
+      if (!ws) return;
+      setWsName(ws.name);
+      setWsRole(ws.role);
+    }
+
+    window.addEventListener(WORKSPACE_UPDATED_EVENT, handleUpdate);
+    return () => window.removeEventListener(WORKSPACE_UPDATED_EVENT, handleUpdate);
   }, []);
 
   return (
