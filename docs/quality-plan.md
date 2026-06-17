@@ -8,10 +8,17 @@
 - Sem codigo morto, imports quebrados ou componentes orfaos.
 - Toda decisao temporaria registrada em `technical-debt-log.md`.
 
+## Testes automatizados
+- Vitest cobre os repositorios (`lib/repositories/__tests__/*`): modo mock
+  (criar/editar/excluir, validacoes) e modo Supabase com client mockado para
+  garantir o filtro de `workspace_id`/`id` (multi-tenant).
+- Rodar com `npm run test` (CI/local) ou `npm run test:watch` no desenvolvimento.
+
 ## Checklist de Aceite
 - [ ] `npm run typecheck` sem erros.
 - [ ] `npm run lint` sem erros bloqueantes.
 - [ ] `npm run build` conclui com sucesso.
+- [ ] `npm run test` verde quando o corte tocar repositorios.
 - [ ] Rotas principais abrem sem erro de runtime.
 - [ ] Nenhum dado novo hardcoded dentro de paginas/componentes.
 - [ ] Escritas reais passam por repositorio ou rota server-side.
