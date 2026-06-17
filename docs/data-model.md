@@ -45,6 +45,9 @@ Workspace 1-* ActivityLog
 - **Real via Supabase:** Auth, profiles/workspaces/members, clientes, boards,
   colunas, cards, calendario, briefing mensal, campanhas e tarefas do Meu
   Painel.
+- **Escopo multi-tenant:** RLS segue como barreira de seguranca e os
+  repositorios reais tambem filtram pelo workspace resolvido para evitar mistura
+  de dados entre workspaces do mesmo usuario.
 - **Mock/fallback por enquanto:** arquivos, inbox, Dogtooth,
   formularios publicos de briefing e superficies fora dos cortes atuais.
 - **Trello:** importacao nao destrutiva e envio controlado de cards, usando os

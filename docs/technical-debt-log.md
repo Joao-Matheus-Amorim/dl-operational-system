@@ -13,7 +13,8 @@
   auxiliares de tarefas/calendario/briefing ainda dependem de mock/fallback.
 - **Prioridade:** Alta.
 - **Plano:** continuar a camada de repositórios sobre Supabase, mantendo fallback
-  mock apenas durante a transicao de cada superficie.
+  mock apenas durante a transicao de cada superficie. Leituras reais ja aplicam
+  filtro explicito de workspace em complemento ao RLS.
 - **Fase:** 2–3.
 
 ### TD02 — Autenticação simbólica (`/login`)

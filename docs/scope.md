@@ -14,6 +14,7 @@
 - **Fase 2:** Supabase Auth, schema, RLS, seed e setup documentado.
 - **Fase 3:** clientes, boards, calendario, briefing mensal e tarefas do Meu
   Painel ja persistem no Supabase; campanhas ja leem metricas do Supabase.
+  Repositorios reais usam filtro explicito de workspace junto com RLS.
 - **Fase 5:** Trello iniciado com importacao de board/listas/cards e envio
   controlado de cards.
 

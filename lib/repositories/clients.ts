@@ -29,9 +29,15 @@ export async function listClients(): Promise<Client[]> {
   const supabase = getSupabase();
   if (!supabase) return mockClients;
 
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) {
+    throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+  }
+
   const { data, error } = await supabase
     .from("clients")
     .select("id, name, niche, plan, status, start_date, tags")
+    .eq("workspace_id", workspaceId)
     .order("name", { ascending: true });
 
   if (error) throw error;
