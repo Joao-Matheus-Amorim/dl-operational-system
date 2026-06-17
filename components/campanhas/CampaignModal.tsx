@@ -41,12 +41,16 @@ export function CampaignModal({
     setBalance((campaign.balanceCents / 100).toFixed(2));
   }, [open, campaign]);
 
+  const normalizedBalance = balance.trim().replace(",", ".");
+  const parsedBalance = Number(normalizedBalance);
+  const balanceValid =
+    normalizedBalance !== "" &&
+    Number.isFinite(parsedBalance) &&
+    parsedBalance >= 0;
+
   async function submit() {
-    if (submitting) return;
-    const parsed = Number(balance.replace(",", "."));
-    const balanceCents = Number.isFinite(parsed)
-      ? Math.round(parsed * 100)
-      : 0;
+    if (submitting || !balanceValid) return;
+    const balanceCents = Math.round(parsedBalance * 100);
 
     setSubmitting(true);
     try {
@@ -99,7 +103,13 @@ export function CampaignModal({
               value={balance}
               onChange={(event) => setBalance(event.target.value)}
               disabled={submitting}
+              aria-invalid={!balanceValid}
             />
+            {!balanceValid && (
+              <p className="mt-1 text-xs text-alert">
+                Informe um saldo válido (R$ 0 ou maior).
+              </p>
+            )}
           </div>
         </div>
 
@@ -114,7 +124,7 @@ export function CampaignModal({
           <Button
             variant="primary"
             onClick={() => void submit()}
-            disabled={submitting}
+            disabled={submitting || !balanceValid}
           >
             {submitting ? "Salvando..." : "Salvar campanha"}
           </Button>
