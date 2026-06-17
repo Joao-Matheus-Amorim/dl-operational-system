@@ -44,7 +44,8 @@ Se o schema ja foi aplicado antes deste corte, rode uma vez:
 ```
 
 Esse SQL adiciona `external_id` em `boards`, `board_columns` e `board_cards`,
-alem dos indices unicos parciais usados para sync idempotente.
+remove os indices globais antigos e cria indices unicos parciais com escopo por
+workspace/board para sync idempotente em ambientes multi-workspace.
 
 ## Uso
 
