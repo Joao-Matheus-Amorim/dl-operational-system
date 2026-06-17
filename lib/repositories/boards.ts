@@ -99,13 +99,39 @@ function getMockColumns(boardId: string): BoardColumn[] {
   }));
 }
 
+async function assertBoardsInCurrentWorkspace(boardIds: string[]): Promise<void> {
+  const uniqueBoardIds = [...new Set(boardIds)];
+  if (uniqueBoardIds.length === 0) return;
+
+  const supabase = getSupabase();
+  if (!supabase) return;
+
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+
+  const { data, error } = await supabase
+    .from("boards")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .in("id", uniqueBoardIds);
+
+  if (error) throw error;
+  if ((data ?? []).length !== uniqueBoardIds.length) {
+    throw new Error("Quadro nao pertence ao workspace atual.");
+  }
+}
+
 export async function listBoards(): Promise<Board[]> {
   const supabase = getSupabase();
   if (!supabase) return mockBoards;
 
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+
   const { data, error } = await supabase
     .from("boards")
     .select("id, title, gradient, board_columns(id), board_cards(id)")
+    .eq("workspace_id", workspaceId)
     .order("created_at", { ascending: true });
 
   if (error) throw error;
@@ -126,6 +152,8 @@ export async function getBoardDetail(boardId: string): Promise<{
         .sort((a, b) => a.order - b.order),
     };
   }
+
+  await assertBoardsInCurrentWorkspace([boardId]);
 
   const [{ data: columns, error: columnsError }, { data: cards, error: cardsError }] =
     await Promise.all([
@@ -223,6 +251,8 @@ export async function createBoardCard(input: {
     };
   }
 
+  await assertBoardsInCurrentWorkspace([input.boardId]);
+
   const { data, error } = await supabase
     .from("board_cards")
     .insert({
@@ -248,6 +278,8 @@ export async function createBoardCard(input: {
 export async function updateBoardCardPositions(cards: BoardCard[]): Promise<void> {
   const supabase = getSupabase();
   if (!supabase) return;
+
+  await assertBoardsInCurrentWorkspace(cards.map((card) => card.boardId));
 
   const updates = cards.map((card) =>
     supabase

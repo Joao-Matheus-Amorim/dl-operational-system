@@ -8,12 +8,14 @@
 ### TD01 — Dados mockados em `lib/mock-data.ts`
 - **Descrição:** parte do domínio ainda vem de constantes mockadas.
 - **Motivo:** MVP foca em navegação/UX antes do banco.
-- **Impacto:** clientes, boards, calendario, briefing mensal e tarefas do Meu
-  Painel ja persistem no Supabase; campanhas, arquivos, inbox e superficies
+- **Impacto:** clientes, boards, calendario, briefing mensal, campanhas e tarefas do Meu
+  Painel ja persistem no Supabase; arquivos, inbox e superficies
   auxiliares de tarefas/calendario/briefing ainda dependem de mock/fallback.
+  O Dashboard consome dados reais das superficies ja migradas.
 - **Prioridade:** Alta.
 - **Plano:** continuar a camada de repositórios sobre Supabase, mantendo fallback
-  mock apenas durante a transicao de cada superficie.
+  mock apenas durante a transicao de cada superficie. Leituras reais ja aplicam
+  filtro explicito de workspace em complemento ao RLS.
 - **Fase:** 2–3.
 
 ### TD02 — Autenticação simbólica (`/login`)
@@ -49,10 +51,10 @@
 - **Plano:** Evolution API / Z-API / Baileys com abstração de provider + webhooks.
 - **Fase:** 5.
 
-### TD06 — Campanhas (Meta Ads) mockadas
-- **Descrição:** métricas e tabela são mock; token não é configurado de fato.
+- **Descrição:** métricas e tabela leem campanhas persistidas no Supabase; token Meta
+  ainda não é configurado de fato.
 - **Motivo:** integração Meta fora do MVP.
-- **Impacto:** sem dados reais de performance.
+- **Impacto:** sem dados externos reais de performance.
 - **Prioridade:** Média.
 - **Plano:** portar `lib/integrations/meta-ads.legacy.js` (Graph API) para rota
   server-side TS (`app/api/meta/...`).

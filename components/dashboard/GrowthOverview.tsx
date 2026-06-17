@@ -1,7 +1,7 @@
 import { DollarSign, UserPlus, Users, Megaphone, type LucideIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
-import { growthMetrics } from "@/lib/mock-data";
+import type { DashboardMetric } from "@/lib/types";
 
 const ICONS: Record<string, LucideIcon> = {
   g_mrr: DollarSign,
@@ -10,16 +10,15 @@ const ICONS: Record<string, LucideIcon> = {
   g_campanhas: Megaphone,
 };
 
-/** Seção "Crescimento da empresa". */
-export function GrowthOverview() {
+export function GrowthOverview({ metrics }: { metrics: DashboardMetric[] }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Crescimento da empresa</CardTitle>
       </CardHeader>
       <div className="grid grid-cols-1 gap-4 p-5 pt-0 sm:grid-cols-2 xl:grid-cols-4">
-        {growthMetrics.map((m) => (
-          <MetricCard key={m.id} metric={m} icon={ICONS[m.id] ?? Users} />
+        {metrics.map((metric) => (
+          <MetricCard key={metric.id} metric={metric} icon={ICONS[metric.id] ?? Users} />
         ))}
       </div>
     </Card>

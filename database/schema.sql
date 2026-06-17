@@ -124,7 +124,9 @@ create table if not exists boards (
   updated_at    timestamptz not null default now()
 );
 create index if not exists boards_workspace_id_idx on boards (workspace_id);
-create unique index if not exists boards_external_id_idx on boards (external_id)
+drop index if exists boards_external_id_idx;
+create unique index if not exists boards_workspace_external_id_idx
+  on boards (workspace_id, external_id)
   where external_id is not null;
 
 create table if not exists board_columns (
@@ -137,7 +139,9 @@ create table if not exists board_columns (
   unique (id, board_id)
 );
 create index if not exists board_columns_board_id_idx on board_columns (board_id);
-create unique index if not exists board_columns_external_id_idx on board_columns (external_id)
+drop index if exists board_columns_external_id_idx;
+create unique index if not exists board_columns_board_external_id_idx
+  on board_columns (board_id, external_id)
   where external_id is not null;
 
 create table if not exists board_cards (
@@ -159,7 +163,9 @@ create table if not exists board_cards (
     references board_columns (id, board_id) on delete cascade
 );
 create index if not exists board_cards_column_id_idx on board_cards (column_id);
-create unique index if not exists board_cards_external_id_idx on board_cards (external_id)
+drop index if exists board_cards_external_id_idx;
+create unique index if not exists board_cards_board_external_id_idx
+  on board_cards (board_id, external_id)
   where external_id is not null;
 
 -- ----------------------------------------------------------------------
@@ -225,6 +231,8 @@ create table if not exists briefings (
   month_ref     text not null,
   created_at    timestamptz not null default now()
 );
+create unique index if not exists briefings_workspace_month_ref_idx
+  on briefings (workspace_id, month_ref);
 
 create table if not exists briefing_items (
   id            uuid primary key default gen_random_uuid(),

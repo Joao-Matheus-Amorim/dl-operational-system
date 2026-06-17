@@ -37,10 +37,19 @@ export async function listMyTasks(): Promise<Task[]> {
     return mockTaskStore.filter((task) => task.assigneeId === currentProfile.id);
   }
 
-  const profileId = await getCurrentProfileId();
+  const [workspaceId, profileId] = await Promise.all([
+    getCurrentWorkspaceId(),
+    getCurrentProfileId(),
+  ]);
+
+  if (!workspaceId) {
+    throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+  }
+
   const { data, error } = await supabase
     .from("tasks")
     .select("id, title, status, priority, assignee_id, client_id, due_date, done")
+    .eq("workspace_id", workspaceId)
     .eq("assignee_id", profileId)
     .order("done", { ascending: true })
     .order("due_date", { ascending: true })
@@ -120,6 +129,11 @@ export async function setTaskDone(taskId: string, done: boolean): Promise<Task> 
     return updated;
   }
 
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) {
+    throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+  }
+
   const { data, error } = await supabase
     .from("tasks")
     .update({
@@ -127,6 +141,7 @@ export async function setTaskDone(taskId: string, done: boolean): Promise<Task> 
       status: done ? "done" : "todo",
       updated_at: new Date().toISOString(),
     })
+    .eq("workspace_id", workspaceId)
     .eq("id", taskId)
     .select("id, title, status, priority, assignee_id, client_id, due_date, done")
     .single();

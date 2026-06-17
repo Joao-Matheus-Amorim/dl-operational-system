@@ -57,23 +57,33 @@ async function upsertByExternalId<T extends { id: string }>(
   table: string,
   externalId: string,
   payload: Record<string, unknown>,
-  select = "id"
+  select = "id",
+  scope: Record<string, string> = {}
 ): Promise<T> {
-  const { data: existing, error: selectError } = await supabase
+  let selectQuery = supabase
     .from(table)
     .select(select)
-    .eq("external_id", externalId)
-    .maybeSingle();
+    .eq("external_id", externalId);
+
+  for (const [key, value] of Object.entries(scope)) {
+    selectQuery = selectQuery.eq(key, value);
+  }
+
+  const { data: existing, error: selectError } = await selectQuery.maybeSingle();
 
   if (selectError) throw selectError;
 
   if (existing) {
-    const { data, error } = await supabase
+    let updateQuery = supabase
       .from(table)
       .update(payload)
-      .eq("external_id", externalId)
-      .select(select)
-      .single();
+      .eq("external_id", externalId);
+
+    for (const [key, value] of Object.entries(scope)) {
+      updateQuery = updateQuery.eq(key, value);
+    }
+
+    const { data, error } = await updateQuery.select(select).single();
 
     if (error) throw error;
     return data as T;
@@ -115,6 +125,7 @@ export async function POST(request: Request) {
     const { data: membership, error: membershipError } = await supabase
       .from("workspace_members")
       .select("workspace_id")
+      .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
 
@@ -139,7 +150,7 @@ export async function POST(request: Request) {
       title: trelloBoard.name,
       gradient: DEFAULT_GRADIENT,
       updated_at: new Date().toISOString(),
-    });
+    }, "id", { workspace_id: membership.workspace_id });
 
     const listIdMap = new Map<string, string>();
     const openLists = trelloLists
@@ -155,7 +166,9 @@ export async function POST(request: Request) {
           board_id: board.id,
           title: list.name,
           position: index,
-        }
+        },
+        "id",
+        { board_id: board.id }
       );
       listIdMap.set(list.id, column.id);
     }
@@ -181,7 +194,7 @@ export async function POST(request: Request) {
           due_date: card.due ? card.due.slice(0, 10) : null,
           position: index,
           updated_at: new Date().toISOString(),
-        });
+        }, "id", { board_id: board.id });
         cardCount += 1;
       }
     }
