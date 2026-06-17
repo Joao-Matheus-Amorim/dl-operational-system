@@ -210,7 +210,7 @@ export const whatsappMessages: WhatsAppMessage[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* DLtinho (conversas mockadas)                                      */
+/* Dogtooth (conversas mockadas)                                      */
 /* ------------------------------------------------------------------ */
 
 export const chatConversations: ChatConversation[] = [
@@ -347,7 +347,7 @@ export const integrations: Integration[] = [
   { id: "int_whatsapp", name: "WhatsApp", description: "Inbox via Evolution API / Z-API.", status: "em-planejamento", phase: "Fase 5" },
   { id: "int_meta", name: "Meta Ads", description: "Métricas de campanhas via API.", status: "em-planejamento", phase: "Fase 5" },
   { id: "int_trello", name: "Trello", description: "Sincronização de boards.", status: "em-planejamento", phase: "Fase 5" },
-  { id: "int_openai", name: "OpenAI", description: "Cérebro do DLtinho.", status: "em-planejamento", phase: "Fase 4" },
+  { id: "int_openai", name: "OpenAI", description: "Cérebro do Dogtooth.", status: "em-planejamento", phase: "Fase 4" },
 ];
 
 /* ------------------------------------------------------------------ */

@@ -10,7 +10,7 @@
 export const ROUTES = {
   login: "/login",
   dashboard: "/dashboard",
-  dltinho: "/dltinho",
+  dogtooth: "/dogtooth",
   meuPainel: "/meu-painel",
   boards: "/boards",
   clientes: "/clientes",
@@ -46,7 +46,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "OPERAÇÃO",
     items: [
       { label: "Dashboard", href: ROUTES.dashboard, icon: "LayoutDashboard" },
-      { label: "DLtinho", href: ROUTES.dltinho, icon: "Sparkles" },
+      { label: "Dogtooth", href: ROUTES.dogtooth, icon: "Sparkles" },
       { label: "Meu painel", href: ROUTES.meuPainel, icon: "UserCircle2" },
       { label: "Boards", href: ROUTES.boards, icon: "KanbanSquare" },
       { label: "Clientes", href: ROUTES.clientes, icon: "Users" },

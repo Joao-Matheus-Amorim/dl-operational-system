@@ -240,7 +240,7 @@ export interface WhatsAppConversation {
 }
 
 /* ------------------------------------------------------------------ */
-/* DLtinho (IA interna)                                               */
+/* Dogtooth (IA interna)                                               */
 /* ------------------------------------------------------------------ */
 
 export type ChatMessageRole = "user" | "assistant" | "system";
@@ -260,10 +260,10 @@ export interface ChatConversation {
 }
 
 /**
- * Ações que o DLtinho poderá executar no sistema (Fase 4).
+ * Ações que o Dogtooth poderá executar no sistema (Fase 4).
  * No MVP a estrutura existe, mas nenhuma ação é executada de fato.
  */
-export type DLtinhoActionType =
+export type DogtoothActionType =
   | "criar-cliente"
   | "criar-tarefa"
   | "gerar-copy"
@@ -271,8 +271,8 @@ export type DLtinhoActionType =
   | "consultar-metricas"
   | "gerar-relatorio";
 
-export interface DLtinhoAction {
-  type: DLtinhoActionType;
+export interface DogtoothAction {
+  type: DogtoothActionType;
   label: string;
   description: string;
 }

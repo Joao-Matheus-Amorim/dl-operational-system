@@ -25,7 +25,7 @@ lib/
   constants.ts       # marca, labels e mapas visuais
   routes.ts          # estrutura de navegacao
   supabase.ts        # client opcional
-  openai.ts          # contrato do DLtinho
+  openai.ts          # contrato do Dogtooth
   integrations/      # legado real colhido do danz, fora do build
 database/
   schema.sql
@@ -77,8 +77,8 @@ As credenciais `TRELLO_API_KEY`, `TRELLO_API_TOKEN` e `TRELLO_BOARD_ID` ficam
 somente no servidor. O mapeamento usa `external_id` em `boards`,
 `board_columns` e `board_cards`.
 
-## DLtinho
-`lib/openai.ts` define o contrato do DLtinho. Na Fase 4, as chamadas OpenAI
+## Dogtooth
+`lib/openai.ts` define o contrato do Dogtooth. Na Fase 4, as chamadas OpenAI
 devem passar por rota server-side e acionar repositorios reais com confirmacao
 na UI.
 

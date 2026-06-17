@@ -1,7 +1,7 @@
 # DL Operational System
 
 Central operacional interna da **DL (Dental Lead)**: um mini sistema operacional
-da agencia que reune, num unico workspace: **Dashboard**, IA **DLtinho**,
+da agencia que reune, num unico workspace: **Dashboard**, IA **Dogtooth**,
 **Meu Painel**, **Boards** estilo Trello, **Clientes**, **Calendario**,
 **Briefings**, **Campanhas**, **Drive/Documentos/Planilhas**, **Inbox WhatsApp**
 e **Configuracoes**.
@@ -55,7 +55,7 @@ rotas server-side; `.env.local` nao deve ser versionado.
 2. **Supabase**: Auth, schema, RLS e seed preparados.
 3. **CRUD real**: clientes e boards ja usam Supabase; demais superficies seguem
    por cortes.
-4. **IA DLtinho**: OpenAI server-side e acoes reais.
+4. **IA Dogtooth**: OpenAI server-side e acoes reais.
 5. **Integracoes**: Trello iniciado; Meta, Google e WhatsApp seguem pendentes.
 6. **Permissoes e operacao multiusuario**: RBAC, convites e auditoria ativa.
 

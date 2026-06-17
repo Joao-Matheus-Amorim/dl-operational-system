@@ -30,9 +30,9 @@ Status local:
   criacao de card e persistencia de DnD via Supabase.
 - Pendentes da Fase 3: tarefas, calendario, briefings, campanhas, arquivos e inbox.
 
-## Fase 4 - IA DLtinho
-- Rota server-side `app/api/dltinho` usando `OPENAI_API_KEY`.
-- Implementar `askDLtinho` real e execucao das `DLTINHO_ACTIONS`
+## Fase 4 - IA Dogtooth
+- Rota server-side `app/api/dogtooth` usando `OPENAI_API_KEY`.
+- Implementar `askDogtooth` real e execucao das `DOGTOOTH_ACTIONS`
   (criar cliente/tarefa, gerar copy, resumir cliente, metricas, relatorio).
 - Persistir conversas (`chat_conversations` / `chat_messages`).
 

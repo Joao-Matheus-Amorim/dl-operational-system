@@ -5,7 +5,7 @@ Documento vivo do produto.
 ## Objetivo
 Construir a central operacional interna da **DL (Dental Lead)**: CRM, boards
 estilo Trello, calendario, tarefas, briefings, campanhas, arquivos, inbox de
-WhatsApp e IA interna DLtinho em um unico workspace.
+WhatsApp e IA interna Dogtooth em um unico workspace.
 
 ## Justificativa
 A operacao esta espalhada em ferramentas desconectadas, como planilhas, Trello,
@@ -20,7 +20,7 @@ do legado, integracoes Meta Ads e Google Sheets, foi preservada em
 - **Fase 1:** frontend SaaS navegavel.
 - **Fase 2:** Supabase Auth, schema, RLS e seed.
 - **Fase 3:** CRUD real por repositorios; clientes e boards ja iniciados.
-- **Fase 4:** DLtinho com OpenAI server-side e acoes reais.
+- **Fase 4:** Dogtooth com OpenAI server-side e acoes reais.
 - **Fase 5:** integracoes externas; Trello iniciado.
 - **Fase 6:** permissoes, convites e auditoria operacional.
 

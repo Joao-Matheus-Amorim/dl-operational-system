@@ -4,17 +4,17 @@ import * as React from "react";
 import { Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PromptSuggestions } from "@/components/dltinho/PromptSuggestions";
+import { PromptSuggestions } from "@/components/dogtooth/PromptSuggestions";
 import { BRAND } from "@/lib/constants";
-import { askDLtinho } from "@/lib/openai";
+import { askDogtooth } from "@/lib/openai";
 import type { ChatMessage } from "@/lib/types";
 import { localId } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 /**
- * Área central de chat do DLtinho.
+ * Área central de chat do Dogtooth.
  *
- * No MVP a resposta vem do stub `askDLtinho` (sem chamada real à OpenAI).
+ * No MVP a resposta vem do stub `askDogtooth` (sem chamada real à OpenAI).
  * As mensagens vivem em estado local — a persistência real chega na Fase 4.
  */
 export function ChatWorkspace({
@@ -47,7 +47,7 @@ export function ChatWorkspace({
     setInput("");
     setPending(true);
 
-    const reply = await askDLtinho(trimmed);
+    const reply = await askDogtooth(trimmed);
     setMessages((prev) => [
       ...prev,
       {

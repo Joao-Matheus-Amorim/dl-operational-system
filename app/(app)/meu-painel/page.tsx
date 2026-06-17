@@ -61,8 +61,8 @@ export default function MeuPainelPage() {
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href={ROUTES.dltinho}>
-                <Sparkles className="h-4 w-4" /> Perguntar ao DLtinho
+              <Link href={ROUTES.dogtooth}>
+                <Sparkles className="h-4 w-4" /> Perguntar ao Dogtooth
               </Link>
             </Button>
           </>
