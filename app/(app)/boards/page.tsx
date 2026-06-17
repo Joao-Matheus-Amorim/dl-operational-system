@@ -15,10 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { BoardGrid } from "@/components/boards/BoardGrid";
 import { KanbanBoard } from "@/components/boards/KanbanBoard";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import {
   createBoard,
   createBoardCard,
+  deleteBoard,
   getBoardDetail,
   listBoards,
   syncTrelloBoard,
@@ -38,6 +40,8 @@ export default function BoardsPage() {
   const [boardTitle, setBoardTitle] = React.useState("");
   const [creatingBoard, setCreatingBoard] = React.useState(false);
   const [syncingTrello, setSyncingTrello] = React.useState(false);
+  const [boardToDelete, setBoardToDelete] = React.useState<Board | null>(null);
+  const [pendingBoardId, setPendingBoardId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let mounted = true;
@@ -111,6 +115,26 @@ export default function BoardsPage() {
   async function refreshBoards() {
     const items = await listBoards();
     setBoards(items);
+  }
+
+  async function handleConfirmDeleteBoard() {
+    const board = boardToDelete;
+    if (!board || pendingBoardId) return;
+    const previous = boards;
+    setPendingBoardId(board.id);
+    setBoards((prev) => prev.filter((item) => item.id !== board.id));
+
+    try {
+      await deleteBoard(board.id);
+      toast("Quadro excluido.");
+      setBoardToDelete(null);
+    } catch (error) {
+      console.error(error);
+      setBoards(previous);
+      toast("Nao foi possivel excluir o quadro.");
+    } finally {
+      setPendingBoardId(null);
+    }
   }
 
   async function submitTrelloSync() {
@@ -207,7 +231,12 @@ export default function BoardsPage() {
           Carregando quadros...
         </div>
       ) : (
-        <BoardGrid boards={boards} onOpen={setOpenBoardId} />
+        <BoardGrid
+          boards={boards}
+          onOpen={setOpenBoardId}
+          onDelete={setBoardToDelete}
+          pendingId={pendingBoardId}
+        />
       )}
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -239,6 +268,26 @@ export default function BoardsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={boardToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setBoardToDelete(null);
+        }}
+        title="Excluir quadro"
+        description={
+          <>
+            Tem certeza que deseja excluir
+            {boardToDelete ? ` "${boardToDelete.title}"` : " este quadro"}? As listas
+            e os cards do quadro tambem serao removidos. Essa acao nao pode ser
+            desfeita.
+          </>
+        }
+        confirmLabel="Excluir quadro"
+        pendingLabel="Excluindo..."
+        pending={pendingBoardId !== null}
+        onConfirm={() => void handleConfirmDeleteBoard()}
+      />
     </div>
   );
 }

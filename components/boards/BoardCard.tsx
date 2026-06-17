@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreVertical, Layers, SquareStack } from "lucide-react";
+import { MoreVertical, Layers, SquareStack, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
 import type { Board } from "@/lib/types";
@@ -10,9 +10,13 @@ import { cn } from "@/lib/utils";
 export function BoardCard({
   board,
   onOpen,
+  onDelete,
+  pending = false,
 }: {
   board: Board;
   onOpen: (id: string) => void;
+  onDelete?: (board: Board) => void;
+  pending?: boolean;
 }) {
   const { futureFeature } = useToast();
 
@@ -28,14 +32,26 @@ export function BoardCard({
           >
             {board.title}
           </button>
-          <button
-            type="button"
-            onClick={() => futureFeature("Menu do quadro")}
-            className="rounded-lg p-1 text-content-muted transition-colors hover:bg-white/[0.06] hover:text-content"
-            aria-label="Opções do quadro"
-          >
-            <MoreVertical className="h-4 w-4" />
-          </button>
+          {onDelete ? (
+            <button
+              type="button"
+              onClick={() => onDelete(board)}
+              disabled={pending}
+              className="rounded-lg p-1 text-content-muted opacity-0 transition-colors hover:bg-alert/[0.12] hover:text-alert focus-visible:opacity-100 group-hover:opacity-100 disabled:cursor-wait disabled:opacity-60"
+              aria-label="Excluir quadro"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => futureFeature("Menu do quadro")}
+              className="rounded-lg p-1 text-content-muted transition-colors hover:bg-white/[0.06] hover:text-content"
+              aria-label="Opções do quadro"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          )}
         </div>
         <div className="mt-3 flex items-center gap-4 text-[11px] text-content-muted">
           <span className="inline-flex items-center gap-1">
