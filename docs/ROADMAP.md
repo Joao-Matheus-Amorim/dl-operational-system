@@ -34,8 +34,11 @@ Status local:
   status e prioridade, edicao, conclusao/reabertura e exclusao.
 - Meu Painel usa perfil autenticado, cards atribuidos e projetos via
   repositorios reais quando Supabase esta configurado.
-- `lib/repositories/calendar.ts`: leitura do calendario, criacao de evento e
-  agenda do Meu Painel via Supabase.
+- `lib/repositories/calendar.ts`: leitura do calendario, criacao, edicao e
+  exclusao de evento e agenda do Meu Painel via Supabase.
+- `/calendario`: na visao Agenda, eventos podem ser editados e excluidos
+  (reaproveitando o `EventModal` para criar/editar). A visao Mes segue apenas
+  para leitura.
 - `lib/repositories/briefings.ts`: leitura do briefing mensal e marcacao de
   checklist via Supabase.
 - `lib/repositories/campaigns.ts`: leitura de campanhas e metricas via Supabase.
@@ -50,8 +53,7 @@ Status local:
   configurado.
 - Dashboard usa os repositórios reais para KPIs, crescimento, agenda, clientes,
   boards e resumo de campanhas quando Supabase esta configurado.
-- Pendentes da Fase 3: formularios publicos de briefing e edicao/exclusao de
-  eventos.
+- Pendentes da Fase 3: formularios publicos de briefing.
 
 ## Fase 4 - IA Dogtooth
 - Rota server-side `app/api/dogtooth` usando `OPENAI_API_KEY`.
@@ -91,7 +93,6 @@ Status local:
 ## Proximos marcos objetivos
 
 1. Fechar a Fase 3 operacional:
-   - Edicao e exclusao de eventos no calendario.
    - Formularios publicos de briefing com gravacao no Supabase.
 
 2. Fechar o primeiro corte Trello da Fase 5:

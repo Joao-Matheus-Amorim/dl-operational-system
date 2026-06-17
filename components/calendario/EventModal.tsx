@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { CalendarEventType } from "@/lib/types";
+import type { CalendarEvent, CalendarEventType } from "@/lib/types";
 import { EVENT_TYPE_LABEL } from "@/lib/constants";
 import { APP_TODAY } from "@/lib/constants";
 import type { CalendarEventInput } from "@/lib/repositories/calendar";
@@ -21,11 +21,13 @@ const TYPES: CalendarEventType[] = ["reuniao", "tarefa", "conteudo", "campanha"]
 export function EventModal({
   open,
   onOpenChange,
-  onCreate,
+  event,
+  onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreate: (event: CalendarEventInput) => Promise<void> | void;
+  event?: CalendarEvent | null;
+  onSubmit: (event: CalendarEventInput) => Promise<void> | void;
 }) {
   const [title, setTitle] = React.useState("");
   const [type, setType] = React.useState<CalendarEventType>("reuniao");
@@ -33,18 +35,27 @@ export function EventModal({
   const [time, setTime] = React.useState("09:00");
   const [creating, setCreating] = React.useState(false);
 
+  React.useEffect(() => {
+    if (!open) return;
+    setTitle(event?.title ?? "");
+    setType(event?.type ?? "reuniao");
+    setDate(event?.date ?? APP_TODAY);
+    setTime(event?.time ?? "09:00");
+  }, [open, event]);
+
+  const isEditing = Boolean(event);
+
   async function submit() {
     if (!title.trim() || creating) return;
 
     setCreating(true);
     try {
-      await onCreate({
+      await onSubmit({
         title: title.trim(),
         type,
         date,
         time,
       });
-      setTitle("");
       onOpenChange(false);
     } finally {
       setCreating(false);
@@ -56,10 +67,12 @@ export function EventModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-content">
-            Novo evento
+            {isEditing ? "Editar evento" : "Novo evento"}
           </DialogTitle>
           <DialogDescription className="text-sm text-content-muted">
-            Crie um compromisso para o calendário operacional.
+            {isEditing
+              ? "Atualize as informações deste compromisso."
+              : "Crie um compromisso para o calendário operacional."}
           </DialogDescription>
         </DialogHeader>
 
@@ -126,7 +139,11 @@ export function EventModal({
             onClick={() => void submit()}
             disabled={creating}
           >
-            Criar evento
+            {creating
+              ? "Salvando..."
+              : isEditing
+                ? "Salvar evento"
+                : "Criar evento"}
           </Button>
         </DialogFooter>
       </DialogContent>

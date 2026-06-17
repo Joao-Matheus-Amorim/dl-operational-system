@@ -150,3 +150,76 @@ export async function createCalendarEvent(
   if (error) throw error;
   return mapCalendarEvent(data as CalendarEventRow);
 }
+
+export async function updateCalendarEvent(
+  eventId: string,
+  input: CalendarEventInput
+): Promise<CalendarEvent> {
+  const supabase = getSupabase();
+  const title = input.title.trim();
+  if (!title) throw new Error("Informe o titulo do evento.");
+
+  const time = input.time?.trim() || undefined;
+
+  if (!supabase) {
+    const existing = mockCalendarEventStore.find((event) => event.id === eventId);
+    if (!existing) throw new Error("Evento nao encontrado.");
+    const updated: CalendarEvent = {
+      ...existing,
+      title,
+      type: input.type,
+      date: input.date,
+      time,
+    };
+    mockCalendarEventStore = mockCalendarEventStore.map((event) =>
+      event.id === eventId ? updated : event
+    );
+    return updated;
+  }
+
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) {
+    throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+  }
+
+  const { data, error } = await supabase
+    .from("calendar_events")
+    .update({
+      title,
+      type: input.type,
+      event_date: input.date,
+      event_time: time ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("workspace_id", workspaceId)
+    .eq("id", eventId)
+    .select(calendarSelect)
+    .single();
+
+  if (error) throw error;
+  return mapCalendarEvent(data as CalendarEventRow);
+}
+
+export async function deleteCalendarEvent(eventId: string): Promise<void> {
+  const supabase = getSupabase();
+
+  if (!supabase) {
+    mockCalendarEventStore = mockCalendarEventStore.filter(
+      (event) => event.id !== eventId
+    );
+    return;
+  }
+
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) {
+    throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+  }
+
+  const { error } = await supabase
+    .from("calendar_events")
+    .delete()
+    .eq("workspace_id", workspaceId)
+    .eq("id", eventId);
+
+  if (error) throw error;
+}

@@ -13,11 +13,14 @@ import {
   type CalendarView,
 } from "@/components/calendario/CalendarToolbar";
 import { EventModal } from "@/components/calendario/EventModal";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import { APP_TODAY } from "@/lib/constants";
 import {
   createCalendarEvent,
+  deleteCalendarEvent,
   listCalendarEvents,
+  updateCalendarEvent,
   type CalendarEventInput,
 } from "@/lib/repositories/calendar";
 import type { CalendarEvent as CalendarEventT } from "@/lib/types";
@@ -29,6 +32,9 @@ export default function CalendarioPage() {
   const [events, setEvents] = React.useState<CalendarEventT[]>([]);
   const [loadingEvents, setLoadingEvents] = React.useState(true);
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [editingEvent, setEditingEvent] = React.useState<CalendarEventT | null>(null);
+  const [pendingEventId, setPendingEventId] = React.useState<string | null>(null);
+  const [eventToDelete, setEventToDelete] = React.useState<CalendarEventT | null>(null);
 
   React.useEffect(() => {
     let mounted = true;
@@ -79,15 +85,54 @@ export default function CalendarioPage() {
 
   const showAgenda = view === "agenda";
 
-  async function handleCreateEvent(input: CalendarEventInput) {
+  function openCreateModal() {
+    setEditingEvent(null);
+    setModalOpen(true);
+  }
+
+  function openEditModal(event: CalendarEventT) {
+    setEditingEvent(event);
+    setModalOpen(true);
+  }
+
+  async function handleSubmitEvent(input: CalendarEventInput) {
     try {
-      const event = await createCalendarEvent(input);
-      setEvents((prev) => [...prev, event]);
+      if (editingEvent) {
+        const updated = await updateCalendarEvent(editingEvent.id, input);
+        setEvents((prev) =>
+          prev.map((event) => (event.id === updated.id ? updated : event))
+        );
+        toast("Evento atualizado.");
+        return;
+      }
+
+      const created = await createCalendarEvent(input);
+      setEvents((prev) => [...prev, created]);
       toast("Evento criado.");
     } catch (error) {
       console.error(error);
-      toast("Não foi possível criar o evento.");
+      toast("Não foi possível salvar o evento.");
       throw error;
+    }
+  }
+
+  async function handleConfirmDelete() {
+    const event = eventToDelete;
+    if (!event || pendingEventId) return;
+    const previous = events;
+    setPendingEventId(event.id);
+    setEvents((prev) => prev.filter((item) => item.id !== event.id));
+
+    try {
+      await deleteCalendarEvent(event.id);
+      toast("Evento excluído.");
+      setEventToDelete(null);
+    } catch (error) {
+      console.error(error);
+      setEvents(previous);
+      toast("Não foi possível excluir o evento.");
+    } finally {
+      setPendingEventId(null);
     }
   }
 
@@ -98,7 +143,7 @@ export default function CalendarioPage() {
         title="CALENDÁRIO"
         subtitle="O que cada pessoa tem pra fazer: tarefas, posts e reuniões organizados por responsável."
         actions={
-          <Button variant="primary" onClick={() => setModalOpen(true)}>
+          <Button variant="primary" onClick={openCreateModal}>
             <Plus className="h-4 w-4" /> Novo evento
           </Button>
         }
@@ -140,7 +185,15 @@ export default function CalendarioPage() {
               ) : (
                 [...monthEvents]
                   .sort((a, b) => a.date.localeCompare(b.date))
-                  .map((event) => <CalendarEvent key={event.id} event={event} />)
+                  .map((event) => (
+                    <CalendarEvent
+                      key={event.id}
+                      event={event}
+                      onEdit={openEditModal}
+                      onDelete={setEventToDelete}
+                      pending={pendingEventId === event.id}
+                    />
+                  ))
               )}
             </div>
           ) : (
@@ -152,7 +205,27 @@ export default function CalendarioPage() {
       <EventModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        onCreate={handleCreateEvent}
+        event={editingEvent}
+        onSubmit={handleSubmitEvent}
+      />
+
+      <ConfirmDialog
+        open={eventToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setEventToDelete(null);
+        }}
+        title="Excluir evento"
+        description={
+          <>
+            Tem certeza que deseja excluir
+            {eventToDelete ? ` "${eventToDelete.title}"` : " este evento"}? Essa
+            ação não pode ser desfeita.
+          </>
+        }
+        confirmLabel="Excluir evento"
+        pendingLabel="Excluindo..."
+        pending={pendingEventId !== null}
+        onConfirm={() => void handleConfirmDelete()}
       />
     </div>
   );
