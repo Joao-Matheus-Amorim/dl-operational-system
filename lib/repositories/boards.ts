@@ -122,9 +122,11 @@ async function assertBoardsInCurrentWorkspace(boardIds: string[]): Promise<void>
   }
 }
 
+let mockBoardStore: Board[] = [...mockBoards];
+
 export async function listBoards(): Promise<Board[]> {
   const supabase = getSupabase();
-  if (!supabase) return mockBoards;
+  if (!supabase) return [...mockBoardStore];
 
   const workspaceId = await getCurrentWorkspaceId();
   if (!workspaceId) throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
@@ -228,13 +230,15 @@ export async function createBoard(title: string): Promise<Board> {
   if (!cleanTitle) throw new Error("Informe o nome do quadro.");
 
   if (!supabase) {
-    return {
+    const board: Board = {
       id: `board_${crypto.randomUUID()}`,
       title: cleanTitle,
       gradient: BOARD_GRADIENTS[0],
       columnsCount: DEFAULT_COLUMNS.length,
       cardsCount: 0,
     };
+    mockBoardStore = [board, ...mockBoardStore];
+    return board;
   }
 
   const workspaceId = await getCurrentWorkspaceId();
@@ -268,6 +272,27 @@ export async function createBoard(title: string): Promise<Board> {
     columnsCount: DEFAULT_COLUMNS.length,
     cardsCount: 0,
   };
+}
+
+export async function deleteBoard(boardId: string): Promise<void> {
+  const supabase = getSupabase();
+
+  if (!supabase) {
+    mockBoardStore = mockBoardStore.filter((board) => board.id !== boardId);
+    return;
+  }
+
+  const workspaceId = await getCurrentWorkspaceId();
+  if (!workspaceId) throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+
+  // board_columns e board_cards saem por ON DELETE CASCADE no schema.
+  const { error } = await supabase
+    .from("boards")
+    .delete()
+    .eq("workspace_id", workspaceId)
+    .eq("id", boardId);
+
+  if (error) throw error;
 }
 
 export async function createBoardCard(input: {
