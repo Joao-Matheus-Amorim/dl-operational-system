@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -21,6 +22,9 @@ import {
 } from "lucide-react";
 import { NAV_GROUPS } from "@/lib/routes";
 import { BRAND } from "@/lib/constants";
+import { getCurrentWorkspace } from "@/lib/repositories/workspace";
+import { WORKSPACE_UPDATED_EVENT } from "@/lib/events/workspace";
+import type { Workspace } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Mapeia o nome do ícone (string em routes.ts) para o componente lucide. */
@@ -48,6 +52,39 @@ const ICONS: Record<string, LucideIcon> = {
  */
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const [wsName, setWsName] = React.useState<string>(BRAND.fullName);
+  const [wsRole, setWsRole] = React.useState<string>(BRAND.role);
+
+  React.useEffect(() => {
+    let mounted = true;
+
+    getCurrentWorkspace()
+      .then((ws) => {
+        if (!mounted || !ws) return;
+        setWsName(ws.name);
+        setWsRole(ws.role);
+      })
+      .catch((error) => {
+        // Mantem o fallback do BRAND; nao bloqueia a navegacao.
+        console.error(error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    function handleUpdate(event: Event) {
+      const ws = (event as CustomEvent<Workspace>).detail;
+      if (!ws) return;
+      setWsName(ws.name);
+      setWsRole(ws.role);
+    }
+
+    window.addEventListener(WORKSPACE_UPDATED_EVENT, handleUpdate);
+    return () => window.removeEventListener(WORKSPACE_UPDATED_EVENT, handleUpdate);
+  }, []);
 
   return (
     <div className="flex h-full flex-col">
@@ -105,8 +142,8 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       {/* Rodapé: workspace ativo */}
       <div className="border-t border-white/[0.06] p-4">
         <p className="dl-label">Workspace ativo</p>
-        <p className="mt-1 text-sm font-medium text-content">{BRAND.fullName}</p>
-        <p className="text-xs text-content-muted">Função: {BRAND.role}</p>
+        <p className="mt-1 truncate text-sm font-medium text-content">{wsName}</p>
+        <p className="truncate text-xs text-content-muted">Função: {wsRole}</p>
       </div>
     </div>
   );

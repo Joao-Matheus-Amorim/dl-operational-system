@@ -15,6 +15,7 @@ import {
   getCurrentWorkspace,
   updateCurrentWorkspace,
 } from "@/lib/repositories/workspace";
+import { emitWorkspaceUpdated } from "@/lib/events/workspace";
 import { cn } from "@/lib/utils";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -60,6 +61,7 @@ export default function ConfiguracoesPage() {
       const updated = await updateCurrentWorkspace({ name: wsName, role: wsRole });
       setWsName(updated.name);
       setWsRole(updated.role);
+      emitWorkspaceUpdated(updated);
       toast("Workspace atualizado.");
     } catch (error) {
       console.error(error);
