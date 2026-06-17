@@ -37,6 +37,7 @@ interface BoardCardRow {
 }
 
 const DEFAULT_COLUMNS = ["Backlog", "Fazendo", "Concluido"];
+const DEFAULT_COLUMNS_WITH_REVIEW = ["Backlog", "Fazendo", "Revisao", "Concluido"];
 const BOARD_GRADIENTS = [
   "from-neon/30 to-event-blue/20",
   "from-event-purple/30 to-neon/20",
@@ -79,6 +80,25 @@ function mapCard(row: BoardCardRow): BoardCard {
   };
 }
 
+function getMockColumns(boardId: string): BoardColumn[] {
+  const existingColumns = mockBoardColumns
+    .filter((column) => column.boardId === boardId)
+    .sort((a, b) => a.order - b.order);
+
+  if (existingColumns.length > 0) return existingColumns;
+
+  const board = mockBoards.find((item) => item.id === boardId);
+  const titles =
+    board?.columnsCount && board.columnsCount >= 4 ? DEFAULT_COLUMNS_WITH_REVIEW : DEFAULT_COLUMNS;
+
+  return titles.map((title, index) => ({
+    id: `${boardId}_col_${index}`,
+    boardId,
+    title,
+    order: index,
+  }));
+}
+
 export async function listBoards(): Promise<Board[]> {
   const supabase = getSupabase();
   if (!supabase) return mockBoards;
@@ -100,9 +120,7 @@ export async function getBoardDetail(boardId: string): Promise<{
 
   if (!supabase) {
     return {
-      columns: mockBoardColumns
-        .filter((column) => column.boardId === boardId)
-        .sort((a, b) => a.order - b.order),
+      columns: getMockColumns(boardId),
       cards: mockBoardCards
         .filter((card) => card.boardId === boardId)
         .sort((a, b) => a.order - b.order),
@@ -223,7 +241,7 @@ export async function createBoardCard(input: {
 
   if (error) throw error;
   const card = mapCard(data as BoardCardRow);
-  await pushBoardCardToTrello(card.id);
+  await pushBoardCardToTrelloBestEffort(card.id);
   return card;
 }
 
@@ -242,7 +260,27 @@ export async function updateBoardCardPositions(cards: BoardCard[]): Promise<void
   const failed = results.find((result) => result.error);
   if (failed?.error) throw failed.error;
 
-  await Promise.all(cards.map((card) => pushBoardCardToTrello(card.id)));
+  await pushBoardCardsToTrelloBestEffort(cards.map((card) => card.id));
+}
+
+async function pushBoardCardToTrelloBestEffort(cardId: string): Promise<void> {
+  try {
+    await pushBoardCardToTrello(cardId);
+  } catch (error) {
+    console.warn("Trello card push failed after local save.", error);
+  }
+}
+
+async function pushBoardCardsToTrelloBestEffort(cardIds: string[]): Promise<void> {
+  const results = await Promise.allSettled(
+    cardIds.map((cardId) => pushBoardCardToTrello(cardId))
+  );
+
+  for (const result of results) {
+    if (result.status === "rejected") {
+      console.warn("Trello card push failed after local position save.", result.reason);
+    }
+  }
 }
 
 async function pushBoardCardToTrello(cardId: string): Promise<void> {
