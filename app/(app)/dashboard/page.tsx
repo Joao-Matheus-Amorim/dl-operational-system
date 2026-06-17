@@ -53,6 +53,10 @@ function isRecentClient(client: Client): boolean {
   return diffMs >= 0 && diffMs <= 7 * 24 * 60 * 60 * 1000;
 }
 
+function getTodayIso(): string {
+  return new Date().toLocaleDateString("sv-SE");
+}
+
 function buildDashboardMetrics({
   clients,
   boards,
@@ -203,7 +207,9 @@ export default function DashboardPage() {
     loading,
   });
   const growthMetrics = buildGrowthMetrics({ clients, campaigns, loading });
-  const upcomingEvents = [...calendarEvents]
+  const todayIso = getTodayIso();
+  const upcomingEvents = calendarEvents
+    .filter((event) => event.date >= todayIso)
     .sort((a, b) => `${a.date}${a.time ?? ""}`.localeCompare(`${b.date}${b.time ?? ""}`))
     .slice(0, 4);
 

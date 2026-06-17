@@ -23,7 +23,7 @@ Escala: Probabilidade (B/M/A) x Impacto (B/M/A).
 | RI02 | Mudancas na Meta Ads API quebrarem campanhas | M x M | Portar legado por camada server-side isolada |
 | RI03 | Limites/escopos OAuth do Google | M x M | Usar escopos minimos e consentimento claro |
 | RI04 | Trello causar perda de dados locais | M x A | Sync nao destrutivo; nao apaga dados DL; usa `external_id` |
-| RI05 | Trello criar duplicidade | M x M | Indices unicos parciais por `external_id` |
+| RI05 | Trello criar duplicidade | M x M | Indices unicos parciais por `external_id` com escopo por workspace/board |
 
 ## Riscos de Performance
 | ID | Risco | P x I | Mitigacao |

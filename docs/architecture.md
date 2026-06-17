@@ -75,7 +75,8 @@ O corte Trello vive em rotas server-side:
 
 As credenciais `TRELLO_API_KEY`, `TRELLO_API_TOKEN` e `TRELLO_BOARD_ID` ficam
 somente no servidor. O mapeamento usa `external_id` em `boards`,
-`board_columns` e `board_cards`.
+`board_columns` e `board_cards`, com unicidade por workspace/board para evitar
+colisao entre tenants que importem o mesmo board Trello.
 
 ## Dogtooth
 `lib/openai.ts` define o contrato do Dogtooth. Na Fase 4, as chamadas OpenAI
