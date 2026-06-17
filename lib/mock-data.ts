@@ -61,19 +61,162 @@ export const profiles: Profile[] = [
 /* Clientes                                                           */
 /* ------------------------------------------------------------------ */
 
-export const clients: Client[] = [
-  { id: "c_andrea", name: "ANDREA BOUTIQUE", niche: "Moda", plan: "Pro", status: "ativo", startDate: "2025-09-01", tags: ["em-dia"] },
-  { id: "c_anna", name: "ANNA LIMA", niche: "Estética", plan: "Essencial", status: "ativo", startDate: "2025-11-12", tags: ["atencao"] },
-  { id: "c_bijoias", name: "BI JÓIAS", niche: "Joalheria", plan: "Premium", status: "ativo", startDate: "2025-06-20", tags: ["em-dia"] },
-  { id: "c_plastrio", name: "PLAST RIO", niche: "Indústria", plan: "Performance", status: "ativo", startDate: "2024-12-02", tags: ["em-dia"] },
-  { id: "c_oticascarol", name: "ÓTICAS CAROL", niche: "Ótica", plan: "Pro", status: "ativo", startDate: "2025-03-15", tags: ["atencao"] },
-  { id: "c_ofile", name: "O FILÉ", niche: "Alimentação", plan: "Essencial", status: "ativo", startDate: "2025-08-08", tags: ["em-dia"] },
-  { id: "c_mycell", name: "MY CELL CENTER", niche: "Eletrônicos", plan: "Pro", status: "pausado", startDate: "2025-02-01", tags: ["critico"] },
-  { id: "c_mrauto", name: "MR AUTOMAÇÕES", niche: "Serviços", plan: "Premium", status: "ativo", startDate: "2025-05-19", tags: ["em-dia"] },
-  { id: "c_mcflats", name: "MC FLATS", niche: "Imobiliário", plan: "Performance", status: "ativo", startDate: "2025-01-10", tags: ["atencao"] },
-  { id: "c_marceloradiador", name: "MARCELO RADIADOR", niche: "Automotivo", plan: "Essencial", status: "pausado", startDate: "2024-10-25", tags: ["critico"] },
+const unitLocations = [
+  "Sapopemba",
+  "Mooca",
+  "José Bonifácio",
+  "Ferraz de Vasconcelos 1",
+  "Itapetininga",
+  "São João del Rei",
+  "Barbacena",
+  "Amparo",
+  "Franco da Rocha",
+  "Bragança Paulista",
+  "Limeira",
+  "Mairiporã",
+  "Mogi Guaçu",
+  "Lavras",
+  "Calçadão",
+  "Yervant",
+  "Jardim Zaira - Mauá",
+  "Carijós",
+  "Rudge Ramos",
+  "Padre Itaquera",
+  "Ibiúna",
+  "Vila São Pedro",
+  "Eldorado",
+  "Itaquera 4",
+  "Barro Branco",
+  "Nilópolis",
+  "Parque São Lucas",
+  "Vila São José",
+  "Guaianases 137",
+  "Apolo",
+  "Itaquera 3",
+  "Várzea Paulista",
+  "Itupeva",
+  "Cosmópolis",
+  "Piracaia",
+  "Bebedouro",
+  "Jordanésia",
+  "Campo Limpo",
+  "Santana de Parnaíba",
+  "Jundiaí",
+  "Ribeirão Preto",
+  "Porto Feliz",
+  "Colinas da Anhanguera",
+  "Sertãozinho",
+  "Oral Prime",
+  "Tupinambás",
+  "Paraná",
+  "Caio - BH",
+  "Avenida 7",
+  "Candeias",
+  "Feira de Santana",
+  "Simões Filho",
+  "Lauro de Freitas",
+  "Camaçari",
+  "São Cristóvão",
+  "São Marcos",
+  "Pernambues",
+  "Pau da Lima",
+  "Liberdade",
+  "Tamarineiro",
+  "Cajazeiras",
+  "Cosme de Farias",
+  "São Caetano",
+  "São Marcos",
+  "Feira de Santana",
+  "Avenida 7",
+  "Liberdade",
+  "São Caetano",
 ];
 
+const clinicBanners = [
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Sorriclean",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Sorriclean",
+  "Dentistas",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Viva Sorrindo",
+  "Faz Odontologia",
+  "Viva Sorrindo",
+  "Oral Prime",
+  "Star Sorrindo",
+  "Star Sorrindo",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Mais Sorriso",
+  "Star Sorrindo",
+  "Star Sorrindo",
+  "Star Sorrindo",
+  "Star Sorrindo",
+  "Star Sorrindo",
+];
+
+const clientPlans: Client["plan"][] = ["Essencial", "Pro", "Premium", "Performance"];
+
+export const clients: Client[] = unitLocations.map((location, index) => ({
+  id: `c_${String(index + 1).padStart(3, "0")}`,
+  name: clinicBanners[index] ?? "Mais Sorriso",
+  niche: location,
+  plan: clientPlans[index % clientPlans.length],
+  status: "ativo",
+  startDate: `2025-06-${String(1 + (index % 28)).padStart(2, "0")}`,
+  tags: index % 11 === 0 ? ["critico"] : index % 5 === 0 ? ["atencao"] : ["em-dia"],
+}));
 /* ------------------------------------------------------------------ */
 /* Boards                                                             */
 /* ------------------------------------------------------------------ */
@@ -108,13 +251,13 @@ export const boardCards: BoardCard[] = [
 /* ------------------------------------------------------------------ */
 
 export const tasks: Task[] = [
-  { id: "t_1", title: "Validar criativos O FILÉ", status: "todo", priority: "alta", assigneeId: "u_danyel", clientId: "c_ofile", dueDate: "2026-06-16", done: false },
-  { id: "t_2", title: "Subir campanha PLAST RIO", status: "todo", priority: "alta", assigneeId: "u_danyel", clientId: "c_plastrio", dueDate: "2026-06-18", done: false },
-  { id: "t_3", title: "Responder briefing BI JÓIAS", status: "doing", priority: "media", assigneeId: "u_danyel", clientId: "c_bijoias", dueDate: "2026-06-19", done: false },
-  { id: "t_4", title: "Relatório mensal ÓTICAS CAROL", status: "todo", priority: "media", assigneeId: "u_danyel", clientId: "c_oticascarol", dueDate: "2026-06-22", done: false },
-  { id: "t_5", title: "Renegociar plano MY CELL CENTER", status: "todo", priority: "alta", assigneeId: "u_danyel", clientId: "c_mycell", dueDate: "2026-06-12", done: false },
-  { id: "t_6", title: "Postar carrossel ANDREA BOUTIQUE", status: "done", priority: "baixa", assigneeId: "u_ana", clientId: "c_andrea", dueDate: "2026-06-14", done: true },
-  { id: "t_7", title: "Editar reels MR AUTOMAÇÕES", status: "doing", priority: "media", assigneeId: "u_bea", clientId: "c_mrauto", dueDate: "2026-06-20", done: false },
+  { id: "t_1", title: "Validar criativos do cliente", status: "todo", priority: "alta", assigneeId: "u_danyel", clientId: clients[0].id, dueDate: "2026-06-16", done: false },
+  { id: "t_2", title: "Subir campanha PLAST RIO", status: "todo", priority: "alta", assigneeId: "u_danyel", clientId: clients[1].id, dueDate: "2026-06-18", done: false },
+  { id: "t_3", title: "Responder briefing mensal", status: "doing", priority: "media", assigneeId: "u_danyel", clientId: clients[2].id, dueDate: "2026-06-19", done: false },
+  { id: "t_4", title: "Relatório mensal", status: "todo", priority: "media", assigneeId: "u_danyel", clientId: clients[3].id, dueDate: "2026-06-22", done: false },
+  { id: "t_5", title: "Renegociar plano", status: "todo", priority: "alta", assigneeId: "u_danyel", clientId: clients[4].id, dueDate: "2026-06-12", done: false },
+  { id: "t_6", title: "Postar carrossel do cliente", status: "done", priority: "baixa", assigneeId: "u_ana", clientId: clients[5].id, dueDate: "2026-06-14", done: true },
+  { id: "t_7", title: "Editar reels MR AUTOMAÇÕES", status: "doing", priority: "media", assigneeId: "u_bea", clientId: clients[6].id, dueDate: "2026-06-20", done: false },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -122,10 +265,10 @@ export const tasks: Task[] = [
 /* ------------------------------------------------------------------ */
 
 export const campaigns: Campaign[] = [
-  { id: "camp_1", clientId: "c_plastrio", clientName: "PLAST RIO", status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 50000 },
-  { id: "camp_2", clientId: "c_ofile", clientName: "O FILÉ", status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 30000 },
-  { id: "camp_3", clientId: "c_oticascarol", clientName: "ÓTICAS CAROL", status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 42000 },
-  { id: "camp_4", clientId: "c_bijoias", clientName: "BI JÓIAS", status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 60000 },
+  { id: "camp_1", clientId: clients[0].id, clientName: clients[0].name, status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 50000 },
+  { id: "camp_2", clientId: clients[1].id, clientName: clients[1].name, status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 30000 },
+  { id: "camp_3", clientId: clients[2].id, clientName: clients[2].name, status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 42000 },
+  { id: "camp_4", clientId: clients[3].id, clientName: clients[3].name, status: "pausada", spendCents: 0, conversations: 0, results: 0, sent: 0, balanceCents: 60000 },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -133,13 +276,13 @@ export const campaigns: Campaign[] = [
 /* ------------------------------------------------------------------ */
 
 export const calendarEvents: CalendarEvent[] = [
-  { id: "ev_1", title: "Reunião PLAST RIO", type: "reuniao", date: "2026-06-17", time: "10:00", ownerId: "u_danyel", clientId: "c_plastrio" },
-  { id: "ev_2", title: "Gravação O FILÉ", type: "conteudo", date: "2026-06-18", time: "14:00", ownerId: "u_bea", clientId: "c_ofile" },
-  { id: "ev_3", title: "Subir campanha BI JÓIAS", type: "campanha", date: "2026-06-19", time: "09:00", ownerId: "u_danyel", clientId: "c_bijoias" },
+  { id: "ev_1", title: "Reunião com cliente", type: "reuniao", date: "2026-06-17", time: "10:00", ownerId: "u_danyel", clientId: clients[0].id },
+  { id: "ev_2", title: "Gravação", type: "conteudo", date: "2026-06-18", time: "14:00", ownerId: "u_bea", clientId: clients[1].id },
+  { id: "ev_3", title: "Subir campanha", type: "campanha", date: "2026-06-19", time: "09:00", ownerId: "u_danyel", clientId: clients[2].id },
   { id: "ev_4", title: "Revisar criativos", type: "tarefa", date: "2026-06-20", time: "11:00", ownerId: "u_marcos" },
   { id: "ev_5", title: "Alinhamento semanal DL", type: "reuniao", date: "2026-06-22", time: "09:30", ownerId: "u_danyel" },
-  { id: "ev_6", title: "Postar carrossel ANDREA", type: "conteudo", date: "2026-06-24", time: "16:00", ownerId: "u_ana", clientId: "c_andrea" },
-  { id: "ev_7", title: "Relatório mensal ÓTICAS", type: "tarefa", date: "2026-06-25", time: "15:00", ownerId: "u_danyel", clientId: "c_oticascarol" },
+  { id: "ev_6", title: "Postar carrossel", type: "conteudo", date: "2026-06-24", time: "16:00", ownerId: "u_ana", clientId: clients[5].id },
+  { id: "ev_7", title: "Relatório mensal", type: "tarefa", date: "2026-06-25", time: "15:00", ownerId: "u_danyel", clientId: clients[3].id },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -147,12 +290,12 @@ export const calendarEvents: CalendarEvent[] = [
 /* ------------------------------------------------------------------ */
 
 export const briefingItems: BriefingItem[] = [
-  { id: "bf_1", monthRef: "2026-06", clientId: "c_andrea", clientName: "ANDREA BOUTIQUE", done: true },
-  { id: "bf_2", monthRef: "2026-06", clientId: "c_bijoias", clientName: "BI JÓIAS", done: true },
-  { id: "bf_3", monthRef: "2026-06", clientId: "c_bibibobit", clientName: "BIBI BOBIT", done: false },
-  { id: "bf_4", monthRef: "2026-06", clientId: "c_bindi", clientName: "BINDI IPHONES", done: false },
-  { id: "bf_5", monthRef: "2026-06", clientId: "c_cwimports", clientName: "CW IMPORTS", done: true },
-  { id: "bf_6", monthRef: "2026-06", clientId: "c_delivery", clientName: "DELIVERY PREMIUM", done: false },
+  { id: "bf_1", monthRef: "2026-06", clientId: clients[0].id, clientName: clients[0].name, done: true },
+  { id: "bf_2", monthRef: "2026-06", clientId: clients[1].id, clientName: clients[1].name, done: true },
+  { id: "bf_3", monthRef: "2026-06", clientId: clients[2].id, clientName: clients[2].name, done: false },
+  { id: "bf_4", monthRef: "2026-06", clientId: clients[3].id, clientName: clients[3].name, done: false },
+  { id: "bf_5", monthRef: "2026-06", clientId: clients[4].id, clientName: clients[4].name, done: true },
+  { id: "bf_6", monthRef: "2026-06", clientId: clients[5].id, clientName: clients[5].name, done: false },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -241,21 +384,13 @@ export const promptSuggestions: string[] = [
 /* ------------------------------------------------------------------ */
 
 export const activityLogs: ActivityLog[] = [
-  { id: "al_1", actor: "Danyel", action: "atualizou", target: "PLAST RIO", timestamp: "2026-06-16T08:10:00" },
-  { id: "al_2", actor: "Ana Lima", action: "concluiu tarefa em", target: "ANDREA BOUTIQUE", timestamp: "2026-06-15T17:42:00" },
-  { id: "al_3", actor: "Danyel", action: "criou briefing de", target: "BI JÓIAS", timestamp: "2026-06-15T15:20:00" },
+  { id: "al_1", actor: "Danyel", action: "atualizou", target: clients[0].name, timestamp: "2026-06-16T08:10:00" },
+  { id: "al_2", actor: "Ana Lima", action: "concluiu tarefa em", target: clients[1].name, timestamp: "2026-06-15T17:42:00" },
+  { id: "al_3", actor: "Danyel", action: "criou briefing de", target: clients[2].name, timestamp: "2026-06-15T15:20:00" },
 ];
 
 /** Clientes destacados no widget "Atualização de clientes" do dashboard. */
-export const dashboardClientUpdates: string[] = [
-  "PLAST RIO",
-  "ÓTICAS CAROL",
-  "O FILÉ",
-  "MY CELL CENTER",
-  "MR AUTOMAÇÕES",
-  "MC FLATS",
-  "MARCELO RADIADOR",
-];
+export const dashboardClientUpdates = clients.slice(0, 7).map((client) => client.name);
 
 /* ------------------------------------------------------------------ */
 /* Dashboard — KPIs                                                   */
@@ -268,8 +403,8 @@ export const dashboardMetrics: DashboardMetric[] = [
   {
     id: "m_clientes",
     label: "Clientes ativos",
-    value: "31",
-    hint: "de 70 no total",
+    value: String(clients.length),
+    hint: `de ${clients.length} no total`,
     deltaPct: null,
     series: flatSeries([24, 26, 27, 28, 30, 31, 31]),
   },
@@ -320,8 +455,8 @@ export const growthMetrics: DashboardMetric[] = [
   {
     id: "g_ativos",
     label: "Clientes ativos",
-    value: "31",
-    hint: "de 70 no total",
+    value: String(clients.length),
+    hint: `de ${clients.length} no total`,
     deltaPct: 3,
     series: flatSeries([28, 29, 30, 30, 31, 31, 31]),
   },
@@ -368,3 +503,4 @@ export const getColumnsByBoard = (boardId: string): BoardColumn[] =>
 
 export const getMessagesByConversation = (conversationId: string): WhatsAppMessage[] =>
   whatsappMessages.filter((m) => m.conversationId === conversationId);
+
