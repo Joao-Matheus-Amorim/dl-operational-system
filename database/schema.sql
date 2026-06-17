@@ -302,7 +302,7 @@ create index if not exists whatsapp_messages_conversation_id_idx
   on whatsapp_messages (conversation_id);
 
 -- ----------------------------------------------------------------------
--- DLtinho
+-- Dogtooth
 -- ----------------------------------------------------------------------
 create table if not exists chat_conversations (
   id            uuid primary key default gen_random_uuid(),

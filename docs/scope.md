@@ -2,7 +2,7 @@
 
 ## MVP Original
 - Shell de aplicacao com sidebar, topbar e layout responsivo.
-- Paginas navegaveis: Dashboard, DLtinho, Meu Painel, Boards, Clientes,
+- Paginas navegaveis: Dashboard, Dogtooth, Meu Painel, Boards, Clientes,
   Calendario, Drive, Documentos, Planilhas, Inbox, Briefings, Campanhas,
   Configuracoes e Login.
 - Interacoes locais onde faziam sentido: DnD de boards, filtros, modais,
@@ -30,7 +30,7 @@
 - **Fase 2:** Supabase Auth, schema/RLS, seed e envs.
 - **Fase 3:** repositorios de dados por dominio; clientes e boards entregues,
   demais dominios por cortar.
-- **Fase 4:** rota server-side de IA + execucao de acoes do DLtinho.
+- **Fase 4:** rota server-side de IA + execucao de acoes do Dogtooth.
 - **Fase 5:** conectores reais; Trello iniciado, demais provedores pendentes.
 - **Fase 6:** RBAC, convites e auditoria ativa.
 

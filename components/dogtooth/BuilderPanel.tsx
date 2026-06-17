@@ -3,10 +3,10 @@
 import { Hammer } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
-import { DLTINHO_ACTIONS } from "@/lib/openai";
+import { DOGTOOTH_ACTIONS } from "@/lib/openai";
 
 /**
- * Aba "Construtor": catálogo das ações que o DLtinho poderá executar.
+ * Aba "Construtor": catálogo das ações que o Dogtooth poderá executar.
  * No MVP cada ação apenas sinaliza que a execução chega na Fase 4.
  */
 export function BuilderPanel() {
@@ -21,14 +21,14 @@ export function BuilderPanel() {
             Pedidos de construção
           </p>
           <p className="text-sm text-content-muted">
-            Descreva o que quer construir e o DLtinho monta no sistema. A execução
+            Descreva o que quer construir e o Dogtooth monta no sistema. A execução
             real das ações chega na Fase 4 (integração OpenAI).
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {DLTINHO_ACTIONS.map((action) => (
+        {DOGTOOTH_ACTIONS.map((action) => (
           <Card
             key={action.type}
             className="cursor-pointer p-4 transition-colors hover:border-neon-border"

@@ -1,24 +1,24 @@
 /**
- * Camada de IA do DLtinho — preparada para a Fase 4, sem chamada real no MVP.
+ * Camada de IA do Dogtooth — preparada para a Fase 4, sem chamada real no MVP.
  *
  * IMPORTANTE (dívida técnica registrada em docs/technical-debt-log.md):
- * No MVP o DLtinho NÃO chama a OpenAI. Este módulo define o contrato que será
+ * No MVP o Dogtooth NÃO chama a OpenAI. Este módulo define o contrato que será
  * implementado depois, via rota server-side (App Router /api), para que a
  * OPENAI_API_KEY nunca seja exposta no client.
  *
- * As "ações" descrevem o que o DLtinho poderá executar no sistema
+ * As "ações" descrevem o que o Dogtooth poderá executar no sistema
  * (criar cliente, criar tarefa, gerar copy, etc.). No MVP elas servem como
  * catálogo de capacidades e base para a UI de sugestões.
  */
 
-import type { DLtinhoAction } from "@/lib/types";
+import type { DogtoothAction } from "@/lib/types";
 
 export const isOpenAIConfigured = Boolean(process.env.OPENAI_API_KEY);
 
 export const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
 
-/** Catálogo de ações que o DLtinho expõe (estrutura pronta p/ Fase 4). */
-export const DLTINHO_ACTIONS: DLtinhoAction[] = [
+/** Catálogo de ações que o Dogtooth expõe (estrutura pronta p/ Fase 4). */
+export const DOGTOOTH_ACTIONS: DogtoothAction[] = [
   {
     type: "criar-cliente",
     label: "Criar cliente",
@@ -51,10 +51,10 @@ export const DLTINHO_ACTIONS: DLtinhoAction[] = [
   },
 ];
 
-export interface DLtinhoReply {
+export interface DogtoothReply {
   content: string;
   /** Ação detectada (quando aplicável). Sempre null no MVP. */
-  action: DLtinhoAction | null;
+  action: DogtoothAction | null;
 }
 
 /**
@@ -62,7 +62,7 @@ export interface DLtinhoReply {
  * deixa explícito que a execução real chegará na Fase 4. A assinatura já é a
  * definitiva, então a troca futura não altera os consumidores.
  */
-export async function askDLtinho(prompt: string): Promise<DLtinhoReply> {
+export async function askDogtooth(prompt: string): Promise<DogtoothReply> {
   return {
     content:
       `Recebi: "${prompt}". No MVP eu ainda não executo ações nem chamo a IA. ` +

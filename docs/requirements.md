@@ -5,7 +5,7 @@
 |----|-----------|--------------|
 | RF01 | Navegar entre secoes via sidebar com rota ativa | Concluido |
 | RF02 | Dashboard com hero, KPIs, crescimento e widgets | Concluido |
-| RF03 | DLtinho: chat, conversas, sugestoes e construtor | Stub |
+| RF03 | Dogtooth: chat, conversas, sugestoes e construtor | Stub |
 | RF04 | Meu Painel: agenda, metricas, tarefas e pontuacao | Mock/fallback |
 | RF05 | Boards: grid, quadro, card, drag and drop e persistencia | Supabase |
 | RF06 | Clientes: tabela, busca, filtro e criacao | Supabase |

@@ -24,8 +24,8 @@
   Fase 2. Middleware/SSR pode entrar depois com `@supabase/ssr`.
 - **Fase:** 2.
 
-### TD03 — DLtinho não chama a OpenAI (`lib/openai.ts`)
-- **Descrição:** `askDLtinho` é um stub determinístico; ações não executam.
+### TD03 — Dogtooth não chama a OpenAI (`lib/openai.ts`)
+- **Descrição:** `askDogtooth` é um stub determinístico; ações não executam.
 - **Motivo:** evitar chave/custos no MVP; manter contrato pronto.
 - **Impacto:** chat não é inteligente; Construtor é catálogo visual.
 - **Prioridade:** Média.

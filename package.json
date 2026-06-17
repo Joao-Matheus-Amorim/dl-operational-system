@@ -2,7 +2,7 @@
   "name": "dl-operational-system",
   "version": "0.1.0",
   "private": true,
-  "description": "Central operacional interna da DL (Dental Lead) — CRM, boards, calendário, briefings, campanhas, arquivos e IA DLtinho.",
+  "description": "Central operacional interna da DL (Dental Lead) — CRM, boards, calendário, briefings, campanhas, arquivos e IA Dogtooth.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

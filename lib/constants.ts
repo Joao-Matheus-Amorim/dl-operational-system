@@ -16,7 +16,7 @@ export const BRAND = {
   fullName: "DL Soluções Digitais",
   legalName: "Dental Lead",
   system: "DL Operational System",
-  ai: "DLtinho",
+  ai: "Dogtooth",
   role: "Tráfego",
 } as const;
 

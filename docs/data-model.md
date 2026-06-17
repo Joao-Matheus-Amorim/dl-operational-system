@@ -14,7 +14,7 @@ Espelha `lib/types.ts` e `database/schema.sql`.
 - **Briefing / BriefingItem**: controle mensal por Client.
 - **DriveFile / DocumentItem / SheetItem**: metadados de arquivos Google.
 - **WhatsAppConversation / WhatsAppMessage**: inbox.
-- **ChatConversation / ChatMessage**: historico do DLtinho.
+- **ChatConversation / ChatMessage**: historico do Dogtooth.
 - **ActivityLog**: auditoria.
 
 ## Relacionamentos
@@ -45,7 +45,7 @@ Workspace 1-* ActivityLog
 - **Real via Supabase:** Auth, profiles/workspaces/members, clientes, boards,
   colunas e cards.
 - **Mock/fallback por enquanto:** tarefas, calendario, briefings, campanhas,
-  arquivos, inbox e DLtinho.
+  arquivos, inbox e Dogtooth.
 - **Trello:** importacao nao destrutiva e envio controlado de cards, usando os
   campos `external_id`.
 

@@ -42,7 +42,7 @@ export function DashboardHero() {
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href={ROUTES.dltinho}>
+              <Link href={ROUTES.dogtooth}>
                 <Sparkles className="h-4 w-4" />
                 Perguntar à DL
               </Link>

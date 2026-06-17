@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { ChatConversation } from "@/lib/types";
 import { cn, formatDate } from "@/lib/utils";
 
-/** Sidebar interna de conversas do DLtinho. */
+/** Sidebar interna de conversas do Dogtooth. */
 export function ConversationList({
   conversations,
   activeId,

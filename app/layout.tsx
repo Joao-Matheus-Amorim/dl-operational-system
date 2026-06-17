@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   title: `${BRAND.system} — ${BRAND.fullName}`,
   description:
-    "Central operacional interna da DL (Dental Lead): CRM, boards, calendário, briefings, campanhas, arquivos e a IA DLtinho.",
+    "Central operacional interna da DL (Dental Lead): CRM, boards, calendário, briefings, campanhas, arquivos e a IA Dogtooth.",
 };
 
 export default function RootLayout({
