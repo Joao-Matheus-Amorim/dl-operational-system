@@ -1,8 +1,20 @@
+import { Edit3, Trash2 } from "lucide-react";
 import type { CalendarEvent as CalendarEventType } from "@/lib/types";
 import { EVENT_TYPE_COLOR, EVENT_TYPE_LABEL } from "@/lib/constants";
 import { getProfileById } from "@/lib/mock-data";
+import { Button } from "@/components/ui/button";
 
-export function CalendarEvent({ event }: { event: CalendarEventType }) {
+export function CalendarEvent({
+  event,
+  onEdit,
+  onDelete,
+  pending = false,
+}: {
+  event: CalendarEventType;
+  onEdit?: (event: CalendarEventType) => void;
+  onDelete?: (event: CalendarEventType) => void;
+  pending?: boolean;
+}) {
   const mockOwner = getProfileById(event.ownerId);
   const ownerName = event.ownerName ?? mockOwner?.name;
 
@@ -20,6 +32,31 @@ export function CalendarEvent({ event }: { event: CalendarEventType }) {
           {ownerName ? ` · ${ownerName}` : ""}
         </p>
       </div>
+      {(onEdit || onDelete) && (
+        <div className="flex shrink-0 gap-2">
+          {onEdit && (
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => onEdit(event)}
+              aria-label="Editar evento"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="danger"
+              size="icon"
+              onClick={() => onDelete(event)}
+              disabled={pending}
+              aria-label="Excluir evento"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -68,9 +68,9 @@
 - **Descrição:** evento/tarefa e algumas marcações vivem só em estado React.
 - **Motivo:** sem persistência no MVP.
 - **Impacto:** novo cliente, novo quadro, novo card, ordem dos cards, tarefas
-  do Meu Painel, novo evento de calendario e checklist mensal de briefing ja
-  persistem; checklists de cards, edicao de eventos e outras superficies de
-  tarefas ainda nao sao duraveis.
+  do Meu Painel, criacao/edicao/exclusao de eventos de calendario e checklist
+  mensal de briefing ja persistem; checklists de cards e outras superficies
+  auxiliares ainda nao sao duraveis.
 - **Prioridade:** Alta.
 - **Plano:** seguir persistindo cada superficie via repositórios (Fase 3).
 - **Fase:** 3.
