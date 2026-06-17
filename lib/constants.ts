@@ -47,8 +47,8 @@ export const CLIENT_TAG_STYLE: Record<ClientTag, string> = {
 export const EVENT_TYPE_COLOR: Record<CalendarEventType, string> = {
   reuniao: "#4F9BE8",
   tarefa: "#D9A441",
-  conteudo: "#A86017",
-  campanha: "#B9732A",
+  conteudo: "#FF7A00",
+  campanha: "#FF8A1C",
 };
 
 export const EVENT_TYPE_LABEL: Record<CalendarEventType, string> = {

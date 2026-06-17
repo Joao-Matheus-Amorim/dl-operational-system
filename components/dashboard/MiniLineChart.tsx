@@ -6,7 +6,7 @@ import type { MetricPoint } from "@/lib/types";
 /** Mini gráfico de linha neon usado nos cards de KPI. */
 export function MiniLineChart({
   data,
-  color = "#A86017",
+  color = "#FF7A00",
   height = 44,
 }: {
   data: MetricPoint[];

@@ -17,9 +17,9 @@ const config: Config = {
           muted: "rgba(255,255,255,0.035)",
         },
         neon: {
-          DEFAULT: "#A86017",
-          soft: "#C8782A",
-          border: "rgba(168,96,23,0.32)",
+          DEFAULT: "#FF7A00",
+          soft: "#FF9A1F",
+          border: "rgba(255,122,0,0.38)",
         },
         content: {
           DEFAULT: "#F8FAFC",
@@ -29,7 +29,7 @@ const config: Config = {
         warning: "#D9A441",
         event: {
           blue: "#4F9BE8",
-          purple: "#B9732A",
+          purple: "#FF8A1C",
         },
       },
       fontFamily: {
@@ -43,8 +43,8 @@ const config: Config = {
         "2xl": "1.25rem",
       },
       boxShadow: {
-        neon: "0 0 0 1px rgba(168,96,23,0.26), 0 0 24px rgba(168,96,23,0.16)",
-        "neon-strong": "0 0 0 1px rgba(168,96,23,0.42), 0 0 32px rgba(168,96,23,0.26)",
+        neon: "0 0 0 1px rgba(255,122,0,0.30), 0 0 26px rgba(255,122,0,0.22)",
+        "neon-strong": "0 0 0 1px rgba(255,122,0,0.52), 0 0 36px rgba(255,122,0,0.34)",
         card: "0 8px 30px rgba(0,0,0,0.28)",
       },
       keyframes: {
