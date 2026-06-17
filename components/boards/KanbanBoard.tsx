@@ -11,7 +11,6 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 import { KanbanColumn } from "@/components/boards/KanbanColumn";
 import { KanbanCard } from "@/components/boards/KanbanCard";
 import type { BoardCard, BoardColumn } from "@/lib/types";
@@ -49,33 +48,43 @@ export function KanbanBoard({
     setActiveId(null);
     if (!over) return;
 
-    const activeCol = findColumnId(String(active.id));
-    const overCol = findColumnId(String(over.id));
+    const activeId = String(active.id);
+    const overId = String(over.id);
+    const activeCol = findColumnId(activeId);
+    const overCol = findColumnId(overId);
     if (!activeCol || !overCol) return;
+    if (activeId === overId) return;
 
     setCards((prev) => {
-      const activeIndex = prev.findIndex((c) => c.id === active.id);
-      if (activeIndex === -1) return prev;
+      const activeCard = prev.find((c) => c.id === activeId);
+      if (!activeCard) return prev;
 
-      // Mesma coluna: reordena. Coluna diferente: move.
-      if (activeCol === overCol && active.id !== over.id) {
-        const colCards = prev.filter((c) => c.columnId === activeCol);
-        const from = colCards.findIndex((c) => c.id === active.id);
-        const to = colCards.findIndex((c) => c.id === over.id);
-        if (from === -1 || to === -1) return prev;
-        const reordered = arrayMove(colCards, from, to).map((c, i) => ({
-          ...c,
-          order: i,
-        }));
-        return prev.map((c) => reordered.find((r) => r.id === c.id) ?? c);
-      }
+      // Cards da coluna de destino, ordenados e sem o card sendo movido.
+      const destCards = prev
+        .filter((c) => c.columnId === overCol && c.id !== activeId)
+        .sort((a, b) => a.order - b.order);
 
+      // Índice de inserção: se soltou sobre um card, antes dele; se soltou na
+      // área da coluna (overId === coluna), vai para o fim.
+      const overIndex = destCards.findIndex((c) => c.id === overId);
+      const insertIndex = overIndex === -1 ? destCards.length : overIndex;
+
+      destCards.splice(insertIndex, 0, { ...activeCard, columnId: overCol });
+
+      // Recalcula `order` sequencial na coluna de destino (sem duplicatas).
+      const reorderedDest = destCards.map((c, i) => ({ ...c, order: i }));
+      let result = prev.map((c) => reorderedDest.find((r) => r.id === c.id) ?? c);
+
+      // Em movimento entre colunas, recompacta também a coluna de origem.
       if (activeCol !== overCol) {
-        return prev.map((c) =>
-          c.id === active.id ? { ...c, columnId: overCol } : c
-        );
+        const reorderedSrc = result
+          .filter((c) => c.columnId === activeCol)
+          .sort((a, b) => a.order - b.order)
+          .map((c, i) => ({ ...c, order: i }));
+        result = result.map((c) => reorderedSrc.find((r) => r.id === c.id) ?? c);
       }
-      return prev;
+
+      return result;
     });
   };
 

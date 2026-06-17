@@ -4,6 +4,7 @@ import { Bell, Search, Sun } from "lucide-react";
 import { BRAND } from "@/lib/constants";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
+import { MobileNav } from "@/components/layout/MobileNav";
 import { currentProfile } from "@/lib/mock-data";
 
 export function Topbar() {
@@ -11,6 +12,9 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-white/[0.06] bg-background/70 px-4 backdrop-blur-xl lg:px-6">
+      {/* Menu mobile (< lg) */}
+      <MobileNav />
+
       <div className="hidden items-center gap-2 md:flex">
         <span className="h-2 w-2 animate-pulse-dot rounded-full bg-neon shadow-neon" />
         <span className="text-sm font-medium text-content">{BRAND.fullName}</span>
