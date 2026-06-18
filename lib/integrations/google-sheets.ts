@@ -21,6 +21,10 @@ function rowsToValues(rows: Record<string, unknown>[]): unknown[][] {
   return [headers, ...rows.map((row) => headers.map((header) => row[header] ?? ""))];
 }
 
+function quoteSheetName(title: string): string {
+  return `'${title.replace(/'/g, "''")}'`;
+}
+
 export class GoogleSheetsClient {
   private sheets: ReturnType<typeof google.sheets> | null = null;
 
@@ -64,13 +68,14 @@ export class GoogleSheetsClient {
     rows: Record<string, unknown>[]
   ): Promise<{ rows: number }> {
     const values = rowsToValues(rows);
+    const quotedName = quoteSheetName(sheetName);
 
     await this.ensureSheet(spreadsheetId, sheetName);
     const sheets = await this.getSheets();
-    await sheets.spreadsheets.values.clear({ spreadsheetId, range: `${sheetName}!A:Z` });
+    await sheets.spreadsheets.values.clear({ spreadsheetId, range: `${quotedName}!A:Z` });
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `${sheetName}!A1`,
+      range: `${quotedName}!A1`,
       valueInputOption: "USER_ENTERED",
       requestBody: { values },
     });
@@ -89,7 +94,7 @@ export class GoogleSheetsClient {
     const sheets = await this.getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: `${sheetName}!A1`,
+      range: `${quoteSheetName(sheetName)}!A1`,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       requestBody: { values: values.slice(1) },

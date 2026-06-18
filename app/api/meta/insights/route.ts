@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = new MetaAdsClient(metaAccessToken);
+    const client = new MetaAdsClient(metaAccessToken, process.env.META_API_VERSION || "v19.0");
     const [balance, insights] = await Promise.all([
       client.getBalance(adAccountId),
       client.getInsights(adAccountId, level as "campaign" | "adset" | "ad", since, until),
