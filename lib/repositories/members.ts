@@ -44,9 +44,21 @@ export async function getWorkspaceMembers(): Promise<Profile[]> {
   return (data as unknown as MemberRow[]).map(mapMemberRow);
 }
 
+function assertCanChangeOwnership(members: Profile[], profileId: string, nextRole?: ProfileRole) {
+  if (nextRole === "owner") {
+    throw new Error("Transferencia de propriedade nao e suportada por aqui.");
+  }
+  const target = members.find((member) => member.id === profileId);
+  const owners = members.filter((member) => member.role === "owner");
+  if (target?.role === "owner" && owners.length <= 1) {
+    throw new Error("O workspace precisa de ao menos um proprietario.");
+  }
+}
+
 export async function updateMemberRole(profileId: string, role: ProfileRole): Promise<Profile[]> {
   const supabase = getSupabase();
   if (!supabase) {
+    assertCanChangeOwnership(mockMembersStore, profileId, role);
     mockMembersStore = mockMembersStore.map((member) =>
       member.id === profileId ? { ...member, role } : member
     );
@@ -55,6 +67,9 @@ export async function updateMemberRole(profileId: string, role: ProfileRole): Pr
 
   const workspaceId = await getCurrentWorkspaceId();
   if (!workspaceId) throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
+
+  const members = await getWorkspaceMembers();
+  assertCanChangeOwnership(members, profileId, role);
 
   const { error } = await supabase
     .from("workspace_members")
@@ -69,6 +84,7 @@ export async function updateMemberRole(profileId: string, role: ProfileRole): Pr
 export async function removeMember(profileId: string): Promise<Profile[]> {
   const supabase = getSupabase();
   if (!supabase) {
+    assertCanChangeOwnership(mockMembersStore, profileId);
     mockMembersStore = mockMembersStore.filter((member) => member.id !== profileId);
     return [...mockMembersStore];
   }
@@ -77,11 +93,7 @@ export async function removeMember(profileId: string): Promise<Profile[]> {
   if (!workspaceId) throw new Error("Usuario autenticado nao esta vinculado a um workspace.");
 
   const members = await getWorkspaceMembers();
-  const target = members.find((member) => member.id === profileId);
-  const owners = members.filter((member) => member.role === "owner");
-  if (target?.role === "owner" && owners.length <= 1) {
-    throw new Error("O workspace precisa de ao menos um proprietario.");
-  }
+  assertCanChangeOwnership(members, profileId);
 
   const { error } = await supabase
     .from("workspace_members")
