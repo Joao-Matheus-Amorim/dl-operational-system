@@ -135,7 +135,12 @@
   Reavaliar se isso for um problema real de uso.
 - **Prioridade:** Baixa (resolvida; só falta granularidade fina, ex.: permitir
   operador concluir a própria tarefa).
-- **Plano:** Drive/Documentos/Planilhas/Inbox/Chat continuam com policy única
+- **Plano:** Drive/Documentos/Inbox/Chat continuam com policy única
   `_member_all` (todos os membros podem tudo) — fora do escopo desta rodada;
-  avaliar se precisam do mesmo padrão quando ganharem escrita real.
+  avaliar se precisam do mesmo padrão quando ganharem escrita real. `sheets` já
+  recebeu RBAC restrito a admin (`sheets_admin_insert/update/delete`), pois
+  `app/api/sheets/export` (TD09) usa `external_id` dessa tabela para validar
+  ownership antes de escrever — sem essa restrição, qualquer membro podia
+  "plantar" o `external_id` de uma planilha de outro workspace e burlar aquela
+  checagem.
 - **Fase:** 6.

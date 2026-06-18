@@ -33,8 +33,9 @@
 - Execucao real de acoes da IA e chamadas OpenAI.
 - Integracoes Google Drive/Docs/Sheets, WhatsApp e Meta Ads.
 - Criacao de boards/listas no Trello, webhooks, labels, membros e checklists.
-- RBAC em Drive/Documentos/Planilhas/Inbox/Chat (ainda `_member_all`); auditoria
-  ativa e operacao multiusuario avancada.
+- RBAC em Drive/Documentos/Inbox/Chat (ainda `_member_all`); auditoria
+  ativa e operacao multiusuario avancada. `sheets` ja restringe escrita a
+  owner/admin (vinculado ao export real do TD09).
 - Busca global, notificacoes reais e alternancia de tema.
 
 ## Entregaveis por Fase

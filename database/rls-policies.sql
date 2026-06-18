@@ -116,6 +116,10 @@ drop policy if exists "briefings_admin_delete" on briefings;
 drop policy if exists "drive_files_member_all" on drive_files;
 drop policy if exists "documents_member_all" on documents;
 drop policy if exists "sheets_member_all" on sheets;
+drop policy if exists "sheets_select" on sheets;
+drop policy if exists "sheets_admin_insert" on sheets;
+drop policy if exists "sheets_admin_update" on sheets;
+drop policy if exists "sheets_admin_delete" on sheets;
 drop policy if exists "wa_conversations_member_all" on whatsapp_conversations;
 drop policy if exists "chat_conversations_member_all" on chat_conversations;
 drop policy if exists "activity_logs_member_select" on activity_logs;
@@ -232,9 +236,15 @@ create policy "documents_member_all" on documents
   for all using (is_workspace_member(workspace_id))
   with check (is_workspace_member(workspace_id));
 
-create policy "sheets_member_all" on sheets
-  for all using (is_workspace_member(workspace_id))
-  with check (is_workspace_member(workspace_id));
+create policy "sheets_select" on sheets
+  for select using (is_workspace_member(workspace_id));
+create policy "sheets_admin_insert" on sheets
+  for insert with check (is_workspace_admin(workspace_id));
+create policy "sheets_admin_update" on sheets
+  for update using (is_workspace_admin(workspace_id))
+  with check (is_workspace_admin(workspace_id));
+create policy "sheets_admin_delete" on sheets
+  for delete using (is_workspace_admin(workspace_id));
 
 create policy "wa_conversations_member_all" on whatsapp_conversations
   for all using (is_workspace_member(workspace_id))
