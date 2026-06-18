@@ -72,6 +72,8 @@ export interface Board {
   gradient: string;
   columnsCount: number;
   cardsCount: number;
+  /** Ids de Profile (operadores) com acesso liberado a este board. */
+  assigneeIds: string[];
 }
 
 export interface BoardColumn {
@@ -206,6 +208,8 @@ export interface DocumentItem {
   title: string;
   updatedAt: string; // ISO 8601
   owner: string;
+  /** Ids de Profile (admins) com acesso liberado a este documento. */
+  releasedAdminIds: string[];
 }
 
 export interface SheetItem {

@@ -19,6 +19,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import { useRole } from "@/lib/role/RoleContext";
 import {
+  assignBoardToOperator,
   createBoard,
   createBoardCard,
   deleteBoard,
@@ -26,10 +27,12 @@ import {
   getBoardDetail,
   listBoards,
   syncTrelloBoard,
+  unassignBoardFromOperator,
   updateBoardCard,
   updateBoardCardPositions,
 } from "@/lib/repositories/boards";
-import type { Board, BoardCard, BoardColumn } from "@/lib/types";
+import { getWorkspaceMembers } from "@/lib/repositories/members";
+import type { Board, BoardCard, BoardColumn, Profile } from "@/lib/types";
 
 export default function BoardsPage() {
   const { toast } = useToast();
@@ -46,6 +49,16 @@ export default function BoardsPage() {
   const [syncingTrello, setSyncingTrello] = React.useState(false);
   const [boardToDelete, setBoardToDelete] = React.useState<Board | null>(null);
   const [pendingBoardId, setPendingBoardId] = React.useState<string | null>(null);
+  const [operators, setOperators] = React.useState<Profile[]>([]);
+  const [accessBoard, setAccessBoard] = React.useState<Board | null>(null);
+  const [accessSaving, setAccessSaving] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!canEdit) return;
+    getWorkspaceMembers()
+      .then((members) => setOperators(members.filter((member) => member.role === "operador")))
+      .catch((error) => console.error(error));
+  }, [canEdit]);
 
   React.useEffect(() => {
     let mounted = true;
@@ -119,6 +132,29 @@ export default function BoardsPage() {
   async function refreshBoards() {
     const items = await listBoards();
     setBoards(items);
+  }
+
+  async function toggleBoardAccess(board: Board, profileId: string, assigned: boolean) {
+    setAccessSaving(profileId);
+    try {
+      if (assigned) {
+        await unassignBoardFromOperator(board.id, profileId);
+      } else {
+        await assignBoardToOperator(board.id, profileId);
+      }
+      const nextAssigneeIds = assigned
+        ? board.assigneeIds.filter((id) => id !== profileId)
+        : [...board.assigneeIds, profileId];
+      setBoards((prev) =>
+        prev.map((item) => (item.id === board.id ? { ...item, assigneeIds: nextAssigneeIds } : item))
+      );
+      setAccessBoard((prev) => (prev?.id === board.id ? { ...prev, assigneeIds: nextAssigneeIds } : prev));
+    } catch (error) {
+      console.error(error);
+      toast("Nao foi possivel atualizar o acesso ao quadro.");
+    } finally {
+      setAccessSaving(null);
+    }
   }
 
   async function handleConfirmDeleteBoard() {
@@ -273,6 +309,7 @@ export default function BoardsPage() {
           boards={boards}
           onOpen={setOpenBoardId}
           onDelete={canDelete ? setBoardToDelete : undefined}
+          onManageAccess={canEdit ? setAccessBoard : undefined}
           pendingId={pendingBoardId}
         />
       )}
@@ -302,6 +339,49 @@ export default function BoardsPage() {
             </Button>
             <Button variant="primary" onClick={() => void submitBoard()} disabled={creatingBoard}>
               {creatingBoard ? "Criando..." : "Criar quadro"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={accessBoard !== null} onOpenChange={(open) => !open && setAccessBoard(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-content">
+              Acesso ao quadro
+            </DialogTitle>
+            <DialogDescription className="text-sm text-content-muted">
+              {accessBoard ? `Escolha quais operadores podem ver "${accessBoard.title}".` : null}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {operators.length === 0 ? (
+              <p className="text-sm text-content-muted">Nenhum operador no workspace.</p>
+            ) : (
+              operators.map((operator) => {
+                const assigned = accessBoard?.assigneeIds.includes(operator.id) ?? false;
+                return (
+                  <label
+                    key={operator.id}
+                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-content hover:bg-white/[0.04]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={assigned}
+                      disabled={accessSaving === operator.id}
+                      onChange={() =>
+                        accessBoard && void toggleBoardAccess(accessBoard, operator.id, assigned)
+                      }
+                    />
+                    {operator.name}
+                  </label>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAccessBoard(null)}>
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>

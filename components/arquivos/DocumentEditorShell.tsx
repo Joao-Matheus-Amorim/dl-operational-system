@@ -1,13 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Search, FileText } from "lucide-react";
+import { Plus, Search, FileText, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
-import type { DocumentItem } from "@/lib/types";
+import { useRole } from "@/lib/role/RoleContext";
+import { releaseDocumentToAdmin, unreleaseDocumentFromAdmin } from "@/lib/repositories/files";
+import { getWorkspaceMembers } from "@/lib/repositories/members";
+import type { DocumentItem, Profile } from "@/lib/types";
 import { formatDate, cn } from "@/lib/utils";
 
 /**
@@ -19,18 +30,56 @@ import { formatDate, cn } from "@/lib/utils";
 export function DocumentEditorShell({
   documents,
   loading = false,
+  onDocumentsChange,
 }: {
   documents: DocumentItem[];
   loading?: boolean;
+  onDocumentsChange?: (documents: DocumentItem[]) => void;
 }) {
-  const { futureFeature } = useToast();
+  const { futureFeature, toast } = useToast();
+  const { canEdit } = useRole();
   const [query, setQuery] = React.useState("");
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [admins, setAdmins] = React.useState<Profile[]>([]);
+  const [accessOpen, setAccessOpen] = React.useState(false);
+  const [accessSaving, setAccessSaving] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!canEdit) return;
+    getWorkspaceMembers()
+      .then((members) => setAdmins(members.filter((member) => member.role === "admin")))
+      .catch((error) => console.error(error));
+  }, [canEdit]);
 
   const visible = documents.filter((d) =>
     d.title.toLowerCase().includes(query.toLowerCase())
   );
   const selected = documents.find((d) => d.id === selectedId) ?? null;
+
+  async function toggleAdminRelease(profileId: string, released: boolean) {
+    if (!selected) return;
+    setAccessSaving(profileId);
+    try {
+      if (released) {
+        await unreleaseDocumentFromAdmin(selected.id, profileId);
+      } else {
+        await releaseDocumentToAdmin(selected.id, profileId);
+      }
+      const nextReleasedAdminIds = released
+        ? selected.releasedAdminIds.filter((id) => id !== profileId)
+        : [...selected.releasedAdminIds, profileId];
+      onDocumentsChange?.(
+        documents.map((d) =>
+          d.id === selected.id ? { ...d, releasedAdminIds: nextReleasedAdminIds } : d
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      toast("Nao foi possivel atualizar o acesso ao documento.");
+    } finally {
+      setAccessSaving(null);
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr]">
@@ -94,9 +143,16 @@ export function DocumentEditorShell({
             title={selected.title}
             description="O editor embutido do Google Docs (com todas as funções) será carregado aqui na Fase 5. No MVP exibimos apenas o cabeçalho do documento selecionado."
           >
-            <Button variant="outline" onClick={() => futureFeature("Abrir editor do Docs")}>
-              Abrir no editor
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button variant="outline" onClick={() => futureFeature("Abrir editor do Docs")}>
+                Abrir no editor
+              </Button>
+              {canEdit && (
+                <Button variant="ghost" onClick={() => setAccessOpen(true)}>
+                  <Users className="h-4 w-4" /> Liberar para admins
+                </Button>
+              )}
+            </div>
           </EmptyState>
         ) : (
           <EmptyState
@@ -106,6 +162,47 @@ export function DocumentEditorShell({
           />
         )}
       </Card>
+
+      <Dialog open={accessOpen} onOpenChange={setAccessOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-content">
+              Acesso de admins ao documento
+            </DialogTitle>
+            <DialogDescription className="text-sm text-content-muted">
+              {selected ? `Escolha quais admins podem ver "${selected.title}".` : null}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {admins.length === 0 ? (
+              <p className="text-sm text-content-muted">Nenhum admin no workspace.</p>
+            ) : (
+              admins.map((admin) => {
+                const released = selected?.releasedAdminIds.includes(admin.id) ?? false;
+                return (
+                  <label
+                    key={admin.id}
+                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-content hover:bg-white/[0.04]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={released}
+                      disabled={accessSaving === admin.id}
+                      onChange={() => void toggleAdminRelease(admin.id, released)}
+                    />
+                    {admin.name}
+                  </label>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAccessOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

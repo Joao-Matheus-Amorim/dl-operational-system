@@ -222,12 +222,12 @@ export const clients: Client[] = unitLocations.map((location, index) => ({
 /* ------------------------------------------------------------------ */
 
 export const boards: Board[] = [
-  { id: "b_trafego", title: "Tráfego Pago", gradient: "from-neon/30 to-event-blue/20", columnsCount: 4, cardsCount: 18 },
-  { id: "b_social", title: "Social Media", gradient: "from-event-purple/30 to-neon/20", columnsCount: 4, cardsCount: 24 },
-  { id: "b_conteudo", title: "DL | Conteúdo", gradient: "from-event-blue/30 to-event-purple/20", columnsCount: 3, cardsCount: 15 },
-  { id: "b_editor", title: "Editor e Filmmaker", gradient: "from-warning/30 to-neon/20", columnsCount: 3, cardsCount: 9 },
-  { id: "b_designer", title: "Designer Gráfico", gradient: "from-event-purple/30 to-event-blue/20", columnsCount: 4, cardsCount: 12 },
-  { id: "b_acomp", title: "Acompanhamento Clientes", gradient: "from-neon/30 to-event-purple/20", columnsCount: 3, cardsCount: 21 },
+  { id: "b_trafego", title: "Tráfego Pago", gradient: "from-neon/30 to-event-blue/20", columnsCount: 4, cardsCount: 18, assigneeIds: [] },
+  { id: "b_social", title: "Social Media", gradient: "from-event-purple/30 to-neon/20", columnsCount: 4, cardsCount: 24, assigneeIds: [] },
+  { id: "b_conteudo", title: "DL | Conteúdo", gradient: "from-event-blue/30 to-event-purple/20", columnsCount: 3, cardsCount: 15, assigneeIds: [] },
+  { id: "b_editor", title: "Editor e Filmmaker", gradient: "from-warning/30 to-neon/20", columnsCount: 3, cardsCount: 9, assigneeIds: [] },
+  { id: "b_designer", title: "Designer Gráfico", gradient: "from-event-purple/30 to-event-blue/20", columnsCount: 4, cardsCount: 12, assigneeIds: ["u_marcos"] },
+  { id: "b_acomp", title: "Acompanhamento Clientes", gradient: "from-neon/30 to-event-purple/20", columnsCount: 3, cardsCount: 21, assigneeIds: [] },
 ];
 
 export const boardColumns: BoardColumn[] = [
@@ -326,14 +326,14 @@ export const driveFolders: DriveFile[] = [
 ];
 
 export const documents: DocumentItem[] = [
-  { id: "doc_1", title: "ROTEIRO ESPAÇO PILATES JULHO", updatedAt: "2026-06-13", owner: "Ana Lima" },
-  { id: "doc_2", title: "ROTEIRO HM RIO JUNHO E JULHO", updatedAt: "2026-06-12", owner: "Ana Lima" },
-  { id: "doc_3", title: "LGPD DL", updatedAt: "2026-05-30", owner: "Danyel" },
-  { id: "doc_4", title: "Brochura", updatedAt: "2026-05-22", owner: "Marcos Reis" },
-  { id: "doc_5", title: "ROTEIRO NAKANO - JUNHO", updatedAt: "2026-06-11", owner: "Beatriz Souza" },
-  { id: "doc_6", title: "Manual_Cultura_DL", updatedAt: "2026-04-18", owner: "Danyel" },
-  { id: "doc_7", title: "ATA_Briefing_Salgados_DL", updatedAt: "2026-06-05", owner: "Ana Lima" },
-  { id: "doc_8", title: "ONBOARDING NAKANO SUSHI", updatedAt: "2026-06-08", owner: "Danyel" },
+  { id: "doc_1", title: "ROTEIRO ESPAÇO PILATES JULHO", updatedAt: "2026-06-13", owner: "Ana Lima", releasedAdminIds: [] },
+  { id: "doc_2", title: "ROTEIRO HM RIO JUNHO E JULHO", updatedAt: "2026-06-12", owner: "Ana Lima", releasedAdminIds: [] },
+  { id: "doc_3", title: "LGPD DL", updatedAt: "2026-05-30", owner: "Danyel", releasedAdminIds: [] },
+  { id: "doc_4", title: "Brochura", updatedAt: "2026-05-22", owner: "Marcos Reis", releasedAdminIds: [] },
+  { id: "doc_5", title: "ROTEIRO NAKANO - JUNHO", updatedAt: "2026-06-11", owner: "Beatriz Souza", releasedAdminIds: [] },
+  { id: "doc_6", title: "Manual_Cultura_DL", updatedAt: "2026-04-18", owner: "Danyel", releasedAdminIds: [] },
+  { id: "doc_7", title: "ATA_Briefing_Salgados_DL", updatedAt: "2026-06-05", owner: "Ana Lima", releasedAdminIds: [] },
+  { id: "doc_8", title: "ONBOARDING NAKANO SUSHI", updatedAt: "2026-06-08", owner: "Danyel", releasedAdminIds: [] },
 ];
 
 export const sheets: SheetItem[] = [

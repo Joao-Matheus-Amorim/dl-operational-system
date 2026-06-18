@@ -15,6 +15,7 @@ interface BoardRow {
   external_id: string | null;
   board_columns?: { id: string }[];
   board_cards?: { id: string }[];
+  board_assignees?: { profile_id: string }[];
 }
 
 interface BoardColumnRow {
@@ -55,6 +56,7 @@ function mapBoard(row: BoardRow): Board {
     gradient: row.gradient,
     columnsCount: row.board_columns?.length ?? 0,
     cardsCount: row.board_cards?.length ?? 0,
+    assigneeIds: (row.board_assignees ?? []).map((assignee) => assignee.profile_id),
   };
 }
 
@@ -136,7 +138,9 @@ export async function listBoards(): Promise<Board[]> {
 
   const { data, error } = await supabase
     .from("boards")
-    .select("id, title, gradient, external_id, board_columns(id), board_cards(id)")
+    .select(
+      "id, title, gradient, external_id, board_columns(id), board_cards(id), board_assignees(profile_id)"
+    )
     .eq("workspace_id", workspaceId)
     .order("created_at", { ascending: true });
 
@@ -239,6 +243,7 @@ export async function createBoard(title: string): Promise<Board> {
       gradient: BOARD_GRADIENTS[0],
       columnsCount: DEFAULT_COLUMNS.length,
       cardsCount: 0,
+      assigneeIds: [],
     };
     mockBoardStore = [board, ...mockBoardStore];
     return board;
@@ -274,7 +279,53 @@ export async function createBoard(title: string): Promise<Board> {
     gradient: board.gradient,
     columnsCount: DEFAULT_COLUMNS.length,
     cardsCount: 0,
+    assigneeIds: [],
   };
+}
+
+export async function assignBoardToOperator(boardId: string, profileId: string): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    mockBoardStore = mockBoardStore.map((board) =>
+      board.id === boardId && !board.assigneeIds.includes(profileId)
+        ? { ...board, assigneeIds: [...board.assigneeIds, profileId] }
+        : board
+    );
+    return;
+  }
+
+  await assertBoardsInCurrentWorkspace([boardId]);
+
+  const { error } = await supabase
+    .from("board_assignees")
+    .insert({ board_id: boardId, profile_id: profileId });
+
+  if (error) throw error;
+}
+
+export async function unassignBoardFromOperator(
+  boardId: string,
+  profileId: string
+): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    mockBoardStore = mockBoardStore.map((board) =>
+      board.id === boardId
+        ? { ...board, assigneeIds: board.assigneeIds.filter((id) => id !== profileId) }
+        : board
+    );
+    return;
+  }
+
+  await assertBoardsInCurrentWorkspace([boardId]);
+
+  const { error } = await supabase
+    .from("board_assignees")
+    .delete()
+    .eq("board_id", boardId)
+    .eq("profile_id", profileId);
+
+  if (error) throw error;
 }
 
 /**
