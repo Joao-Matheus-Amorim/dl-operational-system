@@ -22,6 +22,14 @@ server-side.
 Esses pontos ficam explicitos para evitar sincronizacao destrutiva ou conflitos
 sem politica definida.
 
+## Exclusao de boards importados
+
+Um board com `external_id` (importado do Trello) nao pode ser excluido pelo DL:
+a UI esconde a acao de excluir e mostra um indicador de vinculo, e o
+repositorio bloqueia a chamada (mock e Supabase) para evitar que o proximo
+`/api/trello/sync` reimporte o board. Para remover de fato, arquive o board no
+proprio Trello.
+
 ## Env vars
 
 Configure no ambiente local/Vercel:

@@ -5,7 +5,8 @@
 - Tailwind CSS + utilitarios `.dl-*` em `app/globals.css`.
 - shadcn/ui/Radix primitives para Dialog, Tabs e Slot.
 - lucide-react, framer-motion, Recharts, dnd-kit e date-fns pt-BR.
-- Supabase Auth/Database para a Fase 2 e os primeiros cortes da Fase 3.
+- Supabase Auth/Database para a Fase 2 e a Fase 3 (operacional concluida).
+- Vitest para testes de repositorio (`lib/repositories/__tests__`).
 - OpenAI preparado para a Fase 4.
 
 ## Organizacao de Pastas
@@ -38,7 +39,9 @@ docs/
 ## Shell e Rotas
 A `Sidebar` fixa aparece a partir de `lg`; abaixo disso a navegacao vem de
 `MobileNav`. O route group `(app)` mantem URLs como `/dashboard` e permite que
-as paginas internas compartilhem a `AppShell`. O `/login` fica fora do group.
+as paginas internas compartilhem a `AppShell`. O `/login` e a rota publica de
+briefing `/b/[token]` ficam fora do group (sem `AuthGate`): o cliente preenche o
+briefing sem login, usando funcoes Supabase concedidas ao papel `anon`.
 
 ## Padroes de Componentes
 - Server Components por padrao; `"use client"` apenas onde ha estado, eventos,
@@ -52,9 +55,10 @@ as paginas internas compartilhem a `AppShell`. O `/login` fica fora do group.
 - `lib/types.ts` e `database/schema.sql` devem evoluir juntos.
 - Toda tabela de dominio tem `workspace_id` para multi-tenant e RLS.
 - Valores monetarios usam centavos (`bigint` no banco).
-- Clientes e boards ja usam repositorios Supabase.
-- Tarefas, calendario, briefings, campanhas, arquivos e inbox ainda podem usar
-  mock/fallback ate os proximos cortes da Fase 3.
+- Repositorios Supabase cobrem clientes, boards/cards, tarefas, calendario,
+  campanhas, briefings (mensal + publico), Drive/Documentos/Planilhas e Inbox,
+  sempre com fallback mock quando as envs nao existem.
+- Escritas reais (criar/editar/excluir) filtram por `workspace_id` alem do RLS.
 
 ## Supabase
 O app usa `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` quando
@@ -66,6 +70,16 @@ Para um projeto novo:
 2. Aplicar `database/rls-policies.sql`.
 3. Criar o usuario inicial no Supabase Auth.
 4. Ajustar e executar `database/seed.sql`.
+
+`schema.sql` e `rls-policies.sql` sao reexecutaveis (idempotentes). Ao adicionar
+colunas, policies ou funcoes (ex.: `workspaces_admin_update`, formulario publico
+de briefing), reexecute ambos no projeto para refletir as mudancas.
+
+## Testes
+Vitest cobre `lib/repositories/*` (`npm run test`). Os testes exercitam o modo
+mock (CRUD, validacoes) e o modo Supabase com client mockado para garantir o
+filtro de `workspace_id`/`id`. Os arquivos vivem em
+`lib/repositories/__tests__/` e nao entram no bundle.
 
 ## Trello
 O corte Trello vive em rotas server-side:

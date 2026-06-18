@@ -5,7 +5,7 @@ Escala: Probabilidade (B/M/A) x Impacto (B/M/A).
 ## Riscos Tecnicos
 | ID | Risco | P x I | Mitigacao |
 |----|-------|-------|-----------|
-| RT01 | Migracao mock -> banco gerar duplicidade ou comportamento divergente | M x A | Migrar por repositorios pequenos; clientes e boards ja seguem esse padrao |
+| RT01 | Migracao mock -> banco gerar duplicidade ou comportamento divergente | M x A | Migrar por repositorios pequenos; CRUD por dominio concluido e coberto por testes Vitest (mock + filtro de workspace) |
 | RT02 | Divergencia entre `types.ts` e `schema.sql` | M x M | Atualizar `data-model.md` e schema no mesmo corte |
 | RT03 | Componentes client demais aumentarem bundle | B x M | Server por padrao; `"use client"` apenas onde necessario |
 | RT04 | Persistencia de DnD perder ordem de cards | M x A | Repositorio persiste `column_id` e `position`; UI faz rollback em erro |
@@ -38,3 +38,4 @@ Escala: Probabilidade (B/M/A) x Impacto (B/M/A).
 | RS02 | Acesso cruzado entre workspaces | M x A | RLS por `workspace_id` |
 | RS03 | Permissoes insuficientes por papel | M x M | RBAC planejado para Fase 6 |
 | RS04 | Escrita Trello burlar RLS | B x A | Rotas usam token Supabase do usuario logado |
+| RS05 | Formulario publico de briefing abrir acesso anonimo amplo | M x A | Apenas 2 funcoes `SECURITY DEFINER` (`public_briefing_form`, `submit_briefing_response`) sao concedidas a `anon`; sem policy de tabela aberta; acesso por `public_token` (uuid) e resposta unica por item |
