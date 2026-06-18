@@ -70,6 +70,21 @@ export async function POST(request: Request) {
       );
     }
 
+    const { data: sheetRecord, error: sheetError } = await supabase
+      .from("sheets")
+      .select("id")
+      .eq("external_id", spreadsheetId)
+      .eq("workspace_id", membership.workspace_id)
+      .maybeSingle();
+
+    if (sheetError) throw sheetError;
+    if (!sheetRecord) {
+      return NextResponse.json(
+        { error: "Planilha nao encontrada neste workspace." },
+        { status: 404 }
+      );
+    }
+
     const client = new GoogleSheetsClient();
     const result =
       mode === "append"
