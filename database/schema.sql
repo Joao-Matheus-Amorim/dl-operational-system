@@ -207,6 +207,15 @@ create unique index if not exists board_cards_board_external_id_idx
   on board_cards (board_id, external_id)
   where external_id is not null;
 
+-- Operador so ve um board se um gestor/admin/owner atribuir o board a ele.
+create table if not exists board_assignees (
+  board_id    uuid not null references boards (id) on delete cascade,
+  profile_id  uuid not null references profiles (id) on delete cascade,
+  created_at  timestamptz not null default now(),
+  primary key (board_id, profile_id)
+);
+create index if not exists board_assignees_profile_id_idx on board_assignees (profile_id);
+
 -- ----------------------------------------------------------------------
 -- Tarefas
 -- ----------------------------------------------------------------------
@@ -323,6 +332,17 @@ create table if not exists documents (
   created_at    timestamptz not null default now()
 );
 create index if not exists documents_workspace_id_idx on documents (workspace_id);
+
+-- Admin so ve um documento se um gestor/owner liberar o documento para ele.
+-- Owner sempre ve tudo; gestor/operador nao sao afetados por esta tabela.
+create table if not exists document_admin_releases (
+  document_id uuid not null references documents (id) on delete cascade,
+  profile_id  uuid not null references profiles (id) on delete cascade,
+  created_at  timestamptz not null default now(),
+  primary key (document_id, profile_id)
+);
+create index if not exists document_admin_releases_profile_id_idx
+  on document_admin_releases (profile_id);
 
 create table if not exists sheets (
   id            uuid primary key default gen_random_uuid(),

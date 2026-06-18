@@ -39,7 +39,11 @@ export default function DocumentosPage() {
         title="DOCUMENTOS"
         subtitle="Todos os seus documentos do Google, abertos e editaveis aqui dentro com todas as funcoes do Docs."
       />
-      <DocumentEditorShell documents={documents} loading={loading} />
+      <DocumentEditorShell
+        documents={documents}
+        loading={loading}
+        onDocumentsChange={setDocuments}
+      />
     </div>
   );
 }

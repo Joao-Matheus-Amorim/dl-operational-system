@@ -8,11 +8,13 @@ export function BoardGrid({
   boards,
   onOpen,
   onDelete,
+  onManageAccess,
   pendingId,
 }: {
   boards: Board[];
   onOpen: (id: string) => void;
   onDelete?: (board: Board) => void;
+  onManageAccess?: (board: Board) => void;
   pendingId?: string | null;
 }) {
   return (
@@ -23,6 +25,7 @@ export function BoardGrid({
           board={b}
           onOpen={onOpen}
           onDelete={onDelete}
+          onManageAccess={onManageAccess}
           pending={pendingId === b.id}
         />
       ))}

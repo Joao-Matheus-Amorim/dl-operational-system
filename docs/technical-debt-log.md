@@ -161,3 +161,36 @@
   service role depois de criar a planilha no Google ou validar a conta na
   Graph API.
 - **Fase:** 6.
+
+### TD12 — Acesso granular a boards (operador) e documentos (admin)
+- **Descrição:** dois operadores podem servir gestores diferentes na mesma
+  empresa (ex.: um designer que atende dois gestores) — então o acesso nao e
+  modelado por "carteira de cliente" e sim por atribuicao direta de board e
+  liberacao direta de documento. `board_assignees(board_id, profile_id)`: um
+  editor (owner/admin/gestor) atribui um board inteiro a um ou mais
+  operadores; a funcao `can_view_board(board_id)` (`database/rls-policies.sql`)
+  retorna true para qualquer editor do workspace ou para o operador
+  explicitamente atribuido. As policies de select de `boards`,
+  `board_columns` e `board_cards` passaram a usar essa funcao — operador sem
+  atribuicao nao ve nenhum board. `document_admin_releases(document_id,
+  profile_id)`: gestor/owner libera um documento especifico para um admin; a
+  funcao `can_view_document(document_id, workspace_id)` retorna true para
+  owner/gestor/operador (sem mudanca de comportamento para esses papeis) e
+  para admin apenas se o documento foi liberado para ele. UI: botao "Gerenciar
+  acesso" (ícone de pessoas) no card do board, visivel a quem `canEdit`, abre
+  lista de operadores com checkbox; botao "Liberar para admins" na area de
+  visualizacao de Documentos, visivel a quem `canEdit`, abre lista de admins
+  com checkbox.
+- **Motivo:** caso real reportado (Dental Leal): dois gestores (Bruno e
+  Danyel), e um operador (Chico, designer) que atende ambos — modelo de
+  carteira por cliente nao cobre esse compartilhamento; atribuicao direta por
+  board resolve sem precisar modelar relacao N:N entre operador e gestor.
+- **Impacto:** `tasks`/`campaigns`/`calendar_events`/`clients` nao tem
+  atribuicao por operador — continuam visiveis a todo membro do workspace
+  (igual TD11). Se um operador precisar de acesso granular nessas
+  superficies tambem, replicar o mesmo padrao de tabela de atribuicao +
+  funcao `security definer`.
+- **Prioridade:** Baixa (resolvida para o caso reportado).
+- **Plano:** nenhum pendente; revisitar se outras superficies (tarefas,
+  campanhas) precisarem do mesmo controle granular por operador.
+- **Fase:** 6.

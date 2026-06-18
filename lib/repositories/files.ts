@@ -30,6 +30,7 @@ interface DocumentRow {
   title: string;
   owner_name: string;
   updated_at: string;
+  document_admin_releases?: { profile_id: string }[];
 }
 
 interface SheetRow {
@@ -78,6 +79,7 @@ function mapDocument(row: DocumentRow): DocumentItem {
     title: row.title,
     owner: row.owner_name,
     updatedAt: row.updated_at,
+    releasedAdminIds: (row.document_admin_releases ?? []).map((release) => release.profile_id),
   };
 }
 
@@ -118,22 +120,71 @@ export async function listDriveFiles(): Promise<DriveFile[]> {
   return (data ?? []).map((row) => mapDriveFile(row as DriveFileRow));
 }
 
+let mockDocumentStore: DocumentItem[] = [...mockDocuments];
+
 export async function listDocuments(): Promise<DocumentItem[]> {
   const supabase = getSupabase();
 
   if (!supabase) {
-    return mockDocuments;
+    return [...mockDocumentStore];
   }
 
   const workspaceId = await requireWorkspaceId();
   const { data, error } = await supabase
     .from("documents")
-    .select("id, title, owner_name, updated_at")
+    .select("id, title, owner_name, updated_at, document_admin_releases(profile_id)")
     .eq("workspace_id", workspaceId)
     .order("updated_at", { ascending: false });
 
   if (error) throw error;
   return (data ?? []).map((row) => mapDocument(row as DocumentRow));
+}
+
+export async function releaseDocumentToAdmin(
+  documentId: string,
+  profileId: string
+): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    mockDocumentStore = mockDocumentStore.map((document) =>
+      document.id === documentId && !document.releasedAdminIds.includes(profileId)
+        ? { ...document, releasedAdminIds: [...document.releasedAdminIds, profileId] }
+        : document
+    );
+    return;
+  }
+
+  const { error } = await supabase
+    .from("document_admin_releases")
+    .insert({ document_id: documentId, profile_id: profileId });
+
+  if (error) throw error;
+}
+
+export async function unreleaseDocumentFromAdmin(
+  documentId: string,
+  profileId: string
+): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    mockDocumentStore = mockDocumentStore.map((document) =>
+      document.id === documentId
+        ? {
+            ...document,
+            releasedAdminIds: document.releasedAdminIds.filter((id) => id !== profileId),
+          }
+        : document
+    );
+    return;
+  }
+
+  const { error } = await supabase
+    .from("document_admin_releases")
+    .delete()
+    .eq("document_id", documentId)
+    .eq("profile_id", profileId);
+
+  if (error) throw error;
 }
 
 export async function listSheets(): Promise<SheetItem[]> {

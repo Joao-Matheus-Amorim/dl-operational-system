@@ -54,6 +54,56 @@ as $$
   );
 $$;
 
+-- Editor (owner/admin/gestor) ve todo board do workspace. Operador so ve um
+-- board se foi explicitamente atribuido via board_assignees.
+create or replace function can_view_board(p_board_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from boards b
+    join workspace_members m
+      on m.workspace_id = b.workspace_id
+      and m.profile_id = auth.uid()
+    where b.id = p_board_id
+      and (
+        m.role in ('owner', 'admin', 'gestor')
+        or exists (
+          select 1 from board_assignees ba
+          where ba.board_id = b.id and ba.profile_id = auth.uid()
+        )
+      )
+  );
+$$;
+
+-- Owner ve todo documento. Gestor/operador veem todo documento (igual hoje).
+-- Admin so ve um documento se um gestor/owner liberar via document_admin_releases.
+create or replace function can_view_document(p_document_id uuid, ws uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from workspace_members m
+    where m.workspace_id = ws
+      and m.profile_id = auth.uid()
+      and (
+        m.role in ('owner', 'gestor', 'operador')
+        or exists (
+          select 1 from document_admin_releases dar
+          where dar.document_id = p_document_id and dar.profile_id = auth.uid()
+        )
+      )
+  );
+$$;
+
 alter table workspaces enable row level security;
 alter table profiles enable row level security;
 alter table workspace_members enable row level security;
@@ -68,6 +118,8 @@ alter table briefings enable row level security;
 alter table briefing_items enable row level security;
 alter table drive_files enable row level security;
 alter table documents enable row level security;
+alter table board_assignees enable row level security;
+alter table document_admin_releases enable row level security;
 alter table sheets enable row level security;
 alter table ad_accounts enable row level security;
 alter table whatsapp_conversations enable row level security;
@@ -94,6 +146,17 @@ drop policy if exists "boards_select" on boards;
 drop policy if exists "boards_editor_insert" on boards;
 drop policy if exists "boards_editor_update" on boards;
 drop policy if exists "boards_admin_delete" on boards;
+drop policy if exists "board_assignees_select" on board_assignees;
+drop policy if exists "board_assignees_editor_insert" on board_assignees;
+drop policy if exists "board_assignees_editor_delete" on board_assignees;
+drop policy if exists "documents_member_all" on documents;
+drop policy if exists "documents_select" on documents;
+drop policy if exists "documents_member_insert" on documents;
+drop policy if exists "documents_member_update" on documents;
+drop policy if exists "documents_member_delete" on documents;
+drop policy if exists "document_admin_releases_select" on document_admin_releases;
+drop policy if exists "document_admin_releases_editor_insert" on document_admin_releases;
+drop policy if exists "document_admin_releases_editor_delete" on document_admin_releases;
 drop policy if exists "tasks_member_all" on tasks;
 drop policy if exists "tasks_select" on tasks;
 drop policy if exists "tasks_editor_insert" on tasks;
@@ -182,7 +245,7 @@ create policy "clients_admin_delete" on clients
   for delete using (is_workspace_admin(workspace_id));
 
 create policy "boards_select" on boards
-  for select using (is_workspace_member(workspace_id));
+  for select using (can_view_board(id));
 create policy "boards_editor_insert" on boards
   for insert with check (is_workspace_editor(workspace_id));
 create policy "boards_editor_update" on boards
@@ -190,6 +253,28 @@ create policy "boards_editor_update" on boards
   with check (is_workspace_editor(workspace_id));
 create policy "boards_admin_delete" on boards
   for delete using (is_workspace_admin(workspace_id));
+
+create policy "board_assignees_select" on board_assignees
+  for select using (
+    exists (
+      select 1 from boards b
+      where b.id = board_assignees.board_id and is_workspace_member(b.workspace_id)
+    )
+  );
+create policy "board_assignees_editor_insert" on board_assignees
+  for insert with check (
+    exists (
+      select 1 from boards b
+      where b.id = board_assignees.board_id and is_workspace_editor(b.workspace_id)
+    )
+  );
+create policy "board_assignees_editor_delete" on board_assignees
+  for delete using (
+    exists (
+      select 1 from boards b
+      where b.id = board_assignees.board_id and is_workspace_editor(b.workspace_id)
+    )
+  );
 
 create policy "tasks_select" on tasks
   for select using (is_workspace_member(workspace_id));
@@ -235,9 +320,37 @@ create policy "drive_files_member_all" on drive_files
   for all using (is_workspace_member(workspace_id))
   with check (is_workspace_member(workspace_id));
 
-create policy "documents_member_all" on documents
-  for all using (is_workspace_member(workspace_id))
+create policy "documents_select" on documents
+  for select using (can_view_document(id, workspace_id));
+create policy "documents_member_insert" on documents
+  for insert with check (is_workspace_member(workspace_id));
+create policy "documents_member_update" on documents
+  for update using (is_workspace_member(workspace_id))
   with check (is_workspace_member(workspace_id));
+create policy "documents_member_delete" on documents
+  for delete using (is_workspace_member(workspace_id));
+
+create policy "document_admin_releases_select" on document_admin_releases
+  for select using (
+    exists (
+      select 1 from documents d
+      where d.id = document_admin_releases.document_id and is_workspace_member(d.workspace_id)
+    )
+  );
+create policy "document_admin_releases_editor_insert" on document_admin_releases
+  for insert with check (
+    exists (
+      select 1 from documents d
+      where d.id = document_admin_releases.document_id and is_workspace_editor(d.workspace_id)
+    )
+  );
+create policy "document_admin_releases_editor_delete" on document_admin_releases
+  for delete using (
+    exists (
+      select 1 from documents d
+      where d.id = document_admin_releases.document_id and is_workspace_editor(d.workspace_id)
+    )
+  );
 
 -- sheets nao tem insert/update via RLS de cliente: external_id e title sao
 -- gravados exclusivamente por app/api/sheets/create usando a service role
@@ -271,12 +384,7 @@ create policy "activity_logs_member_select" on activity_logs
   for select using (is_workspace_member(workspace_id));
 
 create policy "board_columns_select" on board_columns
-  for select using (
-    exists (
-      select 1 from boards b
-      where b.id = board_columns.board_id and is_workspace_member(b.workspace_id)
-    )
-  );
+  for select using (can_view_board(board_id));
 create policy "board_columns_editor_insert" on board_columns
   for insert with check (
     exists (
@@ -306,12 +414,7 @@ create policy "board_columns_admin_delete" on board_columns
   );
 
 create policy "board_cards_select" on board_cards
-  for select using (
-    exists (
-      select 1 from boards b
-      where b.id = board_cards.board_id and is_workspace_member(b.workspace_id)
-    )
-  );
+  for select using (can_view_board(board_id));
 create policy "board_cards_editor_insert" on board_cards
   for insert with check (
     exists (
