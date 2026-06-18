@@ -27,9 +27,13 @@ Execute nesta ordem no SQL editor do Supabase:
 -- 1. Estrutura
 -- database/schema.sql
 
--- 2. RLS
+-- 2. RLS + funcoes
 -- database/rls-policies.sql
 ```
+
+Ambos sao idempotentes e reexecutaveis. Sempre que o repo adicionar colunas,
+policies ou funcoes (ex.: `workspaces_admin_update`, formulario publico de
+briefing), reexecute os dois arquivos para o banco refletir as mudancas.
 
 Depois crie o primeiro usuario em `Authentication > Users`.
 
@@ -55,9 +59,9 @@ baseados em `lib/mock-data.ts`.
 ## Observacoes
 
 - A Fase 2 ativa identidade e isolamento por RLS.
-- Clientes, boards, tarefas, calendario, briefings, campanhas, Drive,
-  Documentos, Planilhas e Inbox ja usam `lib/repositories/*` com Supabase
-  quando as envs existem.
-- As demais superficies ainda podem usar `lib/mock-data.ts` ate seus cortes da
-  Fase 3.
+- Fase 3 operacional concluida: CRUD real de clientes, calendario, campanhas,
+  boards/cards e tarefas; briefing mensal e formularios publicos de briefing
+  (link `/b/[token]` via funcoes `anon`); salvar workspace em Configuracoes
+  (owner/admin). Drive, Documentos, Planilhas e Inbox leem dados persistidos.
+- Sem as envs, o app segue em modo mock com fallback local.
 - Convites, RBAC refinado e auditoria operacional continuam na Fase 6.

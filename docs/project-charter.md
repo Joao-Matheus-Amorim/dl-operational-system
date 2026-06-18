@@ -19,7 +19,9 @@ do legado, integracoes Meta Ads e Google Sheets, foi preservada em
 ## Escopo Macro
 - **Fase 1:** frontend SaaS navegavel.
 - **Fase 2:** Supabase Auth, schema, RLS e seed.
-- **Fase 3:** CRUD real por repositorios; clientes e boards ja iniciados.
+- **Fase 3 (operacional concluida):** CRUD real por repositorios — clientes,
+  calendario, campanhas, boards/cards, tarefas, briefing mensal e formularios
+  publicos de briefing; testes Vitest nos repositorios.
 - **Fase 4:** Dogtooth com OpenAI server-side e acoes reais.
 - **Fase 5:** integracoes externas; Trello iniciado.
 - **Fase 6:** permissoes, convites e auditoria operacional.
