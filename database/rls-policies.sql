@@ -105,7 +105,7 @@ create policy "members_select" on workspace_members
 
 create policy "members_admin_update" on workspace_members
   for update using (is_workspace_admin(workspace_id))
-  with check (is_workspace_admin(workspace_id));
+  with check (is_workspace_admin(workspace_id) and role <> 'owner');
 
 create policy "members_admin_delete" on workspace_members
   for delete using (is_workspace_admin(workspace_id));
